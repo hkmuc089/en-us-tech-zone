@@ -12,7 +12,7 @@ description: Tech Paper focused on installation, configuration, and various opti
 
 ## Overview
 
-One of the most popular browsers today, Google Chrome, is a must-have for many Citrix Virtual Apps and Desktops environments. Google Chrome was primarily oriented at consumers and desktop operating systems when launched, but today, it is common in the Enterprise and more and more administrators are deploying this browser in their Virtual Apps and Desktops environments. This led Google to release a new Chrome Enterprise Bundle package in 2017 that is much friendlier to enterprise deployments than past iterations. To properly install and configure Google Chrome, there are some details you need to be aware of. This article will show you the recommended steps to a successful deployment, configuration, and optimization of Google Chrome in your organization.
+One of the most popular browsers today, Google Chrome, is a must-have for many Citrix Virtual Apps and Desktops environments. Google Chrome was primarily oriented at consumers and desktop operating systems when launched, but today, it is common in the Enterprise and more and more administrators are deploying this browser in their Virtual Apps and Desktops environments. This led Google to release a new Chrome Enterprise Bundle package in 2017 that is much friendlier to enterprise deployments than past iterations. To properly install and configure Google Chrome, there are some details you need to be aware of. This article shows you the recommended steps to a successful deployment, configuration, and optimization of Google Chrome in your organization.
 
 ## Installation
 
