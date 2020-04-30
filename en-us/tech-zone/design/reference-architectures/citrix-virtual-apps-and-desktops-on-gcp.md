@@ -34,19 +34,13 @@ We take a stand for **cloud services**, recommending that **most organizations u
 
 Next, we define and examine three common deployment scenarios, highlighting which adoption model is used for each subsystem:
 
--  **Greenfield**/**Cloud only** - uses cloud services for all Citrix virtualization system subsystems, plus AWS public cloud services.
+-  **Greenfield**/**Cloud only** - uses cloud services for all Citrix virtualization system subsystems, plus Google Cloud services.
 -  **Hybrid** (not to be confused with a 'hybrid cloud') - the most common deployment model, the hybrid model uses CVADS for session brokering and administration, with both customer managed and cloud service options for the remaining subsystems.
--  **Lift and Shift** - as the name states, this model uses existing, customer managed CVAD, StoreFront, and ADC/Gateway and either migrates these components to AWS as is, or installs them into AWS as part of a workload migration to AWS public cloud services. While this is a valid deployment model for certain specific use cases, it comes with substantial caveats.
+-  **Lift and Shift** - as the name states, this model uses existing, customer managed CVAD, StoreFront, and ADC/Gateway and either migrates these components to GCP as is, or installs them into GCP as part of a workload migration to Google Cloud. While this is a valid deployment model for certain specific use cases, it comes with substantial caveats.
 
-Finally, we use the well documented **Citrix Architectural Design Framework** to organize and present the key design decisions to be considered when deploying Citrix virtualization technology on AWS. We keep our focus on "what's different about Citrix on AWS" for clarity, providing links to other resources for more detailed information as needed.
+Finally, we use the well documented **Citrix Architectural Design Framework** to organize and present the key design decisions to be considered when deploying Citrix virtualization technology on GCP. We keep our focus on "what's different about Citrix on GCP" for clarity, providing links to other resources for more detailed information as needed.
 
-We ultimately recommend that most customers use the **Hybrid deployment model** from day one, using the CVAD service for **session brokering and administration**. This provides the customer with key capabilities necessary to cost-effectively run a Citrix virtualization system on AWS, substantially reduces the cost and complexity, provides access to the latest features and capabilities available, and simplifies the migration to and usage of other cloud services in the future. Either cloud services OR customer managed components can be used for the remaining subsystems (depending upon the customers' specific needs), though we recommend customers are clear as to why they're using customer managed components and have a plan to move to cloud services in the future once the cloud services meet their specific needs.
-
-For more insights into leading practices for Citrix on AWS, readers can reference the following Cloud Guidepost articles:
-
--  [Leading practices for Citrix Cloud on AWS - Part 1](https://www.citrix.com/blogs/2019/09/23/cloud-guidepost-leading-practices-for-citrix-cloud-on-aws-part-1/)
--  [Leading practices for Citrix Cloud on AWS - Part 2](https://www.citrix.com/blogs/2019/11/21/cloud-guidepost-leading-practices-for-citrix-cloud-on-aws-part-2/)
--  [Leading practices for Citrix Cloud on AWS - Part 3](https://www.citrix.com/blogs/2020/01/21/cloud-guidepost-leading-practices-for-citrix-cloud-on-aws-part-3/)
+We ultimately recommend that most customers use the **Hybrid deployment model** from day one, using the CVAD service for **session brokering and administration**. This provides the customer with key capabilities necessary to cost-effectively run a Citrix virtualization system on GCP, substantially reduces the cost and complexity, provides access to the latest features and capabilities available, and simplifies the migration to and usage of other cloud services in the future. Either cloud services OR customer managed components can be used for the remaining subsystems (depending upon the customers' specific needs), though we recommend customers are clear as to why they're using customer managed components and have a plan to move to cloud services in the future once the cloud services meet their specific needs.
 
 ## Key Concepts and Deployment Scenarios
 
@@ -69,7 +63,7 @@ We use this term to describe various different components in a Citrix virtualiza
 Today, customers have very compelling alternatives to a customer managed adoption model, yet some still adopt elements of their technology stack using this model for various reasons. While this model provides customers with the **most control over each component**, it comes at a cost: the customer takes on the responsibility to manage and maintain the component, including securing, operating, patching, upgrading, and maintaining high availability. This model is also **commonly deployed for 'air gapped' systems** (those without any
 Internet access, and hence are limited in their ability to use cloud services, which are commonly and securely accessed over public networks).
 
-Here's an example of the architecture of a Citrix virtualization system that's using 100% customer managed components deployed on AWS using basic AWS IaaS services such as Elastic Compute Cloud (EC2) and Virtual Private Cloud (VPC) networking. We'll be discussing some of the details of this architecture in later sections of this document, though you may immediately notice the similarities to the much simpler greenfield/cloud only deployment model:
+Here's an example of the architecture of a Citrix virtualization system that's using 100% customer managed components deployed on Google Cloud using basic GCP IaaS services such as Compute Engine (GCE) and Virtual Private Cloud (VPC) networks. We'll be discussing some of the details of this architecture in later sections of this document, though you may immediately notice the similarities to the much simpler greenfield/cloud only deployment model:
 
 ![Diagram 1: 100% Customer Managed, Lift/Shift deployment using AWS as IaaS only](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-aws_001.png)
 *Diagram 1: 100% Customer Managed, Lift/Shift deployment using AWS as IaaS only.*
@@ -83,11 +77,11 @@ Today, many of the components or layers that comprise a Citrix virtualization sy
 
 Citrix offers many of its traditional products 'as a Service', using its platform partners' latest technological advancements to simplify and streamline adoption, accelerate the pace of innovation, improve quality, and deliver more incremental value to their customers over time. Citrix calls this service delivery platform "Citrix Cloud," and it represents the current and future state of the art from Citrix.
 
-Here's an example of the architecture of a system that's using 100% cloud service components for a Citrix virtualization system on AWS.
+Here's an example of the architecture of a system that's using 100% cloud service components for a Citrix virtualization system on GCP.
 We'll be discussing the details of this design in a later section of this document:
 
-![Diagram 2: 100% Cloud Services on AWS with AWS Managed Services](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-aws_002.png)
-*Diagram 2: 100% Cloud Services on AWS with AWS Managed Services*
+![Diagram 2: 100% Cloud Services on GCP with Google Cloud Managed Services](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-aws_002.png)
+*Diagram 2: 100% Cloud Services on GCP with Google Cloud Managed Services*
 
 #### Partner Managed
 
@@ -112,14 +106,14 @@ The following table highlights these key components for clarity. Details and rec
 
 Whether you manage the Citrix virtualization system yourself or you use Citrix or an authorized partner to do it, consider using **cloud services** wherever possible. For use cases/environments where the cloud service doesn't meet your needs, customer managed components can be used. That said - Citrix encourages customers to be clear on why they are deploying self-managed components, and be prepared to migrate to cloud services once the cloud service meets their specific needs. The cloud services provided by Citrix through Citrix Cloud are evolving rapidly. Over time you can expect them to provide all the functionality required to serve all but the most complex use cases. Citrix Cloud services ultimately minimize the amount of infrastructure the customer is responsible for managing and maintaining. Citrix Cloud also provides highly available, pre-integrated services, and ensures customers always have access to the latest, most secure, and feature-rich services.
 
-### Common Deployment Models for Citrix Virtualization on AWS
+### Common Deployment Models for Citrix Virtualization on Google Cloud
 
-As a cloud provider with the most functionality, largest community of customers, unmatched experience and maturity, AWS sees a wide range of customers from various industries moving systems and infrastructure to their clouds. Over time they've seen common deployment scenarios/migration patterns develop. In this section, we'll explore these patterns/scenarios, discuss when and where you may want to consider using them to bring a Citrix Virtual Apps and Desktops workload to AWS, and provide some recommendations for which patterns to consider for common migration scenarios.
+In this section, we'll explore three common design patterns/scenarios for deploying Citrix Virtualization on Google Cloud. We'll also discuss when and where you may want to consider using each to bring a Citrix Virtual Apps and Desktops workload to Google Cloud, and provide some recommendations for which patterns to consider for common migration scenarios.
 
-The three most common scenarios for delivering Citrix Apps and Desktops on AWS are:
+The three most common scenarios for delivering Citrix Apps and Desktops on Google Cloud are:
 
--  **Greenfield/Cloud Only** deployment, using Citrix Cloud services with "resource locations" on Amazon EC2 (Amazon Elastic Compute Cloud) service. This scenario is commonly used when customers prefer to go to a subscription model and outsource control plane infrastructure and management responsibility to Citrix, or they're looking to experience/evaluate the capabilities provided by Citrix Cloud services.
--  **Hybrid** deployment/workload migration to AWS, using Citrix Cloud services for session brokering and administration, Workspace UI or StoreFront for content aggregation/session presentation/session launching, and may also use customer managed Citrix ADC/Gateways for HDX session proxying, complex authentication scenarios, or both.
+-  **Cloud Forward** design pattern: uses Citrix Cloud services with "resource locations" on Google Cloud. This scenario is commonly used when customers prefer to go to a subscription model and outsource control plane infrastructure and management responsibility to Citrix, or they're looking to experience/evaluate the capabilities provided by Citrix Cloud services.
+-  **Hybrid** deployment/workload migration to Google Cloud, using Citrix Cloud services for session brokering and administration, Workspace UI or StoreFront for content aggregation/session presentation/session launching, and may also use customer managed Citrix ADC/Gateways for HDX session proxying, complex authentication scenarios, or both.
 -  **Lift and shift**. With this scenario, customers essentially move or redeploy their self-managed Citrix infrastructure into AWS, treating the deployment on AWS just like their existing customer managed deployment. With this scenario, customers use Citrix ADC/Gateway and Citrix StoreFront to aggregate resources from on-premises and AWS hosted sites. This facilitates the migration of workloads to AWS, though customers may keep their on-premises workloads around and simply add another site in AWS. The new site can be used for new workloads or to support disaster recovery (DR) and failover use cases. This model is characterized by the use of customer managed components for session brokering and administration, UI services, authentication, and HDX session proxy.
 
 This section defines these scenarios in more detail, including architectural overviews of how each scenario is commonly designed.
