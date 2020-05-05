@@ -10,18 +10,19 @@ description: Learn the architecture and deployment considerations of Citrix Virt
 
 **Special Thanks:** Someone super cool.
 
-## Audience and Objective
+### Audience and Objective
 
-This document is intended to help Citrix partners and customers understand the most critical design decisions necessary to successfully deploy Citrix virtualization technologies on Google's public cloud. It is not meant to be a "How-To" reference - Citrix considers those [Deployment Guides](/en-us/tech-zone/build/deployment-guides.html), and they are now delivered and maintained separately from [Reference Architectures](/en-us/tech-zone/design/reference-architectures.html). In this document, we use the Citrix Architectural Design Framework to organize and present the leading practices, recommendations, and design patterns which are used by Citrix and select Citrix consulting partners.
+This document is intended to help Citrix partners and customers understand the most critical design decisions necessary to successfully deploy Citrix virtualization technologies on Google's public cloud. It is not meant to be a "How-To" reference - Citrix considers those [Deployment Guides](/en-us/tech-zone/build/deployment-guides.html), and they are now delivered and maintained separately from [Reference Architectures](/en-us/tech-zone/design/reference-architectures.html). In this document, we use the Citrix Architectural Design Framework to organize and present the leading practices, recommendations, and design patterns which are used by Citrix and Citrix consulting partners.
 
 ## Overview and Executive Summary
 
-Citrix virtualization and networking technologies have been successfully serving the needs of enterprises large and small for nearly three decades. There are many ways in which these technologies can be licensed, deployed, integrated, and managed. This flexibility allows Citrix technologies to serve various different use cases, business types, integration requirements, and operational models. This paper is written for the Citrix customer or partner who's considering or planning to deploy these technologies on AWS' public cloud infrastructure.
+Citrix virtualization and networking technologies have been successfully serving the needs of enterprises large and small for nearly three decades. There are many ways in which these technologies can be licensed, deployed, integrated, and managed. This flexibility allows Citrix technologies to serve various different use cases, business types, integration requirements, and operational models. This paper is written for the Citrix customer or partner who's considering or planning to deploy these technologies on Google's innovative public cloud infrastructure.
 
 For both existing customers looking to modernize their infrastructure and new customers looking to deploy Citrix virtualization and networking technologies, there are several key high and low level decisions which must be made along the way to help facilitate a successful deployment. To help customers and partners understand these decision points, we have introduced and defined some specific terminology to set the appropriate context, then used this context to highlight the critical decisions and implications to consider as you plan your deployment.
 
-We start by defining two primary technology adoption models:
-**Customer Managed** and **Cloud Services**. We then break the [components of a Citrix virtualization system](#citrix-virtualization-system-components) down into multiple subsystems, and categorize them by adoption model:
+We start by defining two primary technology delivery/adoption models: **Customer Managed** and **Cloud Service**.
+
+We then break a Citrix virtualization system down into functional components, all of which are required. These [components of a Citrix virtualization system](#citrix-virtualization-system-components) are then categorized by adoption model:
 
 | Adoption Model / Subsystem function | Customer Managed (installed from downloaded binaries) | Cloud Service (delivered via Citrix Cloud) |
 |-----------------|-------------------------------|-------------------------------|
@@ -30,64 +31,34 @@ We start by defining two primary technology adoption models:
 | **Authentication** | Citrix StoreFront (plus Citrix ADC/Gateway for most use cases) | Citrix Workspace (plus Citrix ADC/Gateway for certain use cases) |
 | **HDX session proxy** | Citrix ADC/Gateway | Citrix Gateway Service |
 
-We take a stand for **cloud services**, recommending that **most organizations use or plan to use cloud services** where feasible. We don't offer this stand blindly - while we do believe cloud services, in the long run, offer overwhelmingly positive benefits for our customers, we recognize that **not all organizations/deployments are able to use cloud services for all subsystems today**. Sometimes, use case requirements (in combination with technical attributes or shortcomings in a currently available/specific cloud service) necessitate adopting a combination of cloud services and customer managed component: we focus on these in this paper. In other cases, non-technical items (politics, budgetary/contractual considerations, cloud readiness deficiencies, regulatory/compliance considerations, and such) may discourage the usage of cloud services. In these instances, we recommend working with your Citrix partner/sales/engineering team to help overcome them. Through the rest of this paper, we go to great lengths to identify key capabilities, features, or attributes that help customers decide which adoption model to use for which subsystem and when.
+Next, we define and examine three common design patterns (aka deployment scenarios or deployment models), highlighting which adoption model is required or optional for each subsystem:
 
-Next, we define and examine three common deployment scenarios, highlighting which adoption model is used for each subsystem:
-
--  **Greenfield**/**Cloud only** - uses cloud services for all Citrix virtualization system subsystems, plus Google Cloud services.
+-  **Cloud Forward** - uses cloud services for all Citrix virtualization system subsystems, plus Google Cloud services.
 -  **Hybrid** (not to be confused with a 'hybrid cloud') - the most common deployment model, the hybrid model uses CVADS for session brokering and administration, with both customer managed and cloud service options for the remaining subsystems.
--  **Lift and Shift** - as the name states, this model uses existing, customer managed CVAD, StoreFront, and ADC/Gateway and either migrates these components to GCP as is, or installs them into GCP as part of a workload migration to Google Cloud. While this is a valid deployment model for certain specific use cases, it comes with substantial caveats.
+-  **Cloud Migration** - for more conservative customers with existing investments in Citrix virtualization technology, this model leverages the flexibility of Citrix's customer managed access layer technologies (Citrix ADC/Gateway and Citrix StoreFront/Workspace Service) to provide a consistent UX to users while running an existing customer managed environment side by side with a Citrix Cloud brokered environment.
 
-Finally, we use the well documented **Citrix Architectural Design Framework** to organize and present the key design decisions to be considered when deploying Citrix virtualization technology on GCP. We keep our focus on "what's different about Citrix on GCP" for clarity, providing links to other resources for more detailed information as needed.
+Finally, we use the well documented **Citrix Architectural Design Framework** to organize and present the key design decisions to be considered when deploying Citrix virtualization technology on GCP.
+We keep our focus on "what's different about Citrix on GCP" for clarity, providing links to other resources for more detailed information as needed.
 
-We ultimately recommend that most customers use the **Hybrid deployment model** from day one, using the CVAD service for **session brokering and administration**. This provides the customer with key capabilities necessary to cost-effectively run a Citrix virtualization system on GCP, substantially reduces the cost and complexity, provides access to the latest features and capabilities available, and simplifies the migration to and usage of other cloud services in the future. Either cloud services OR customer managed components can be used for the remaining subsystems (depending upon the customers' specific needs), though we recommend customers are clear as to why they're using customer managed components and have a plan to move to cloud services in the future once the cloud services meet their specific needs.
+### Conclusions
+
+We ultimately take a stand for **cloud services**, recommending that **most organizations use or plan to use cloud services** where feasible. We don't offer this stand blindly - while we do believe cloud services, in the long run, offer overwhelmingly positive benefits for our customers, we recognize that **not all organizations/deployments are able to use cloud services for all subsystems today**.
+Sometimes, use case requirements (in combination with technical attributes or shortcomings in a currently available/specific cloud service) necessitate adopting a combination of cloud services and customer managed component: we focus on these in this paper.
+In other cases, non-technical items (politics, budgetary/contractual considerations, cloud readiness deficiencies, regulatory/compliance considerations, and such) may discourage the usage of cloud services.
+In these instances, we recommend working with your Citrix partner/sales/engineering team to help overcome them.
+
+You'll find that all three design patterns presented use the CVAD Service for **session brokering and administration**. This provides the customer with key capabilities necessary to cost-effectively deploy and run a Citrix virtualization system on GCP, substantially reduces the cost and complexity, provides access to the latest features and capabilities available, and simplifies the migration to and usage of other cloud services in the future. Either cloud service OR customer managed components can be used for the remaining subsystems, though we recommend customers are clear as to why they're using customer managed components and have a plan to move to cloud services in the future once the cloud services meet their specific needs.
 
 ## Key Concepts and Deployment Scenarios
 
 In this section, we'll describe some key concepts and deployment scenarios before we dive into specific considerations for each layer of the **Citrix Architectural Design Framework**.
 
-### Technology Adoption Models
+### Technology Delivery/Adoption Models
+To help readers understand the design decisions presented here, we'll introduce the distinction between **Customer Managed** and **Cloud Service** adoption models. Simply put:
+-  **Customer Managed** technologies are deployed and managed by/for the customer, typically by downloading and installing binaries on infrastructure they manage, or buying and installing physical gear like networking appliances. CVAD (LTSR or CR), Citrix ADC/Gateway, and Citrix StoreFront are examples of customer managed techologies.
+-  **Cloud Service** based technologies are delivered as managed services, and often consumed by securely connecting to them over public networks. The Citrix Virtual Apps and Desktops Service (CVADS), Citrix Gateway Service (CGS), and Citrix Workspace Service are examples of cloud services.
 
-Citrix Virtual Apps and Desktops technology can be 'consumed' or implemented many different ways. The most common methods can be described generally as **Customer Managed** and **Cloud Services**. A third model is also worth mentioning - **Partner Managed**. We'll describe this model here for clarity, but from an architectural design perspective, the first two are the most relevant.
-
-Why are we discussing technology adoption models in a reference architecture? The choice of adoption or 'consumption' model has a substantial impact upon the system design, capabilities, cost, and delineation of management responsibilities. This section will define and explore these models, and provide some general guidance to help customers make informed choices as they design a Citrix virtualization system.
-
-#### Customer Managed
-
-For many years, businesses wanting to consume technology had no choice but to buy, install, configure, and maintain the entire technology stack required to build a Citrix virtualization system. Citrix's virtualization software was only available as installable binaries.
-Customers who bought Citrix's virtualization software would download these binaries (often in the form of a downloadable ISO disk image or self-extracting executables) then install, configure, and maintain the software themselves. The Citrix software (and networking hardware) was most commonly installed into/on infrastructure the customer owned and maintained, in data centers they also owned and maintained.
-
-Conceptually speaking, a Citrix virtualization system is made up of various different Citrix components, many of which we'll describe in detail in this paper. They also require different layers of third-party components which must be provided before you can do anything with the Citrix bits. Ultimately, they all come together to create a functional Citrix virtualization system. For the sake of clarity, this document refers to this technology adoption model as **"Customer Managed"**.
-We use this term to describe various different components in a Citrix virtualization system, including the requisite third party components in the layers underneath, next to, and 'above' the Citrix components. This model can also be called "Self-Managed."
-
-Today, customers have very compelling alternatives to a customer managed adoption model, yet some still adopt elements of their technology stack using this model for various reasons. While this model provides customers with the **most control over each component**, it comes at a cost: the customer takes on the responsibility to manage and maintain the component, including securing, operating, patching, upgrading, and maintaining high availability. This model is also **commonly deployed for 'air gapped' systems** (those without any
-Internet access, and hence are limited in their ability to use cloud services, which are commonly and securely accessed over public networks).
-
-Here's an example of the architecture of a Citrix virtualization system that's using 100% customer managed components deployed on Google Cloud using basic GCP IaaS services such as Compute Engine (GCE) and Virtual Private Cloud (VPC) networks. We'll be discussing some of the details of this architecture in later sections of this document, though you may immediately notice the similarities to the much simpler greenfield/cloud only deployment model:
-
-![Diagram 1: 100% Customer Managed, Lift/Shift deployment using AWS as IaaS only](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-aws_001.png)
-*Diagram 1: 100% Customer Managed, Lift/Shift deployment using AWS as IaaS only.*
-
-#### Cloud Services
-
-Over the last 15 years, technological advancements across many different fields have given rise to hyper scale public clouds, sophisticated cloud services, microservice architectures, DevOPS/Agile delivery frameworks, subscription licensing models, and 'evergreen' software and systems.
-These advancements have revolutionized the way technology is acquired, adopted, delivered, and maintained across almost every industry in the world.
-
-Today, many of the components or layers that comprise a Citrix virtualization system are available "as a Service." In contrast to the Customer Managed adoption model (where customers buy technology as a corporate asset and build/maintain systems themselves), customers "subscribe" to various services, and the service provider takes on the responsibility for delivering and managing these services. These services are often consumed over public networks (that is, the Internet) leading some to call this a "Cloud Service" or "Web Service" adoption model. In this paper we're going to refer to this type of adoption model as "Cloud Managed Services," or simply the **"Cloud Service"** model.
-
-Citrix offers many of its traditional products 'as a Service', using its platform partners' latest technological advancements to simplify and streamline adoption, accelerate the pace of innovation, improve quality, and deliver more incremental value to their customers over time. Citrix calls this service delivery platform "Citrix Cloud," and it represents the current and future state of the art from Citrix.
-
-Here's an example of the architecture of a system that's using 100% cloud service components for a Citrix virtualization system on GCP.
-We'll be discussing the details of this design in a later section of this document:
-
-![Diagram 2: 100% Cloud Services on GCP with Google Cloud Managed Services](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-aws_002.png)
-*Diagram 2: 100% Cloud Services on GCP with Google Cloud Managed Services*
-
-#### Partner Managed
-
-While many organizations choose to build their own Citrix virtualization system, some customers seek to get out of the business of managing IT so they can focus resources and attention on serving their own customers and markets. To serve these customers, Citrix works with integration partners who use Citrix technologies to provide a 'finished goods' service to their customers.
-
-Defining and differentiating the different integration partners/types and offerings available are outside of the scope of this document. However, Citrix partners face the same choices customers face when designing a Citrix virtualization system. The Citrix partner may choose to use one or more services from Citrix Cloud, or they may choose to build and manage some components of the system for their customers' specific needs. As such, the guidance provided in this document will be relevant to both the Citrix partner and their customers, just for different reasons.
+For a more detailed breakdown of this differentiation and the impact it has on your design decisions, see this [primer on Technology Delivery/Adoption Models](/en-us/tech-zone/design/reference-architectures/primer-technology-adoption-models.html).
 
 ### Citrix Virtualization System Components
 
@@ -100,163 +71,170 @@ The following table highlights these key components for clarity. Details and rec
 |**Session brokering and administration** - The core of any Citrix virtualization system: without this core subsystem, you don't have any apps or desktops, and you can't manage them! This subsystem is where you define, provision, and update Machine Catalogs (collections of Citrix Virtual Delivery Agent or "VDA" VM instances). It is also where you create Delivery Groups, assigning apps/desktops to users, and administer the environment and user sessions. | **CVAD - Citrix Virtual Apps and Desktops**, either Long Term Service Release (LTSR) or Current Release (CR) versions. If you install and configure a delivery controller in your environment, this is what you're running. It also means you're installing and managing your own Microsoft SQL Server infrastructure. Administrative functions in a customer managed (CVAD) deployment include Citrix Director and Citrix Studio. You install, configure, and manage these yourself using LTSR/CR binaries. Director also requires Microsoft SQL Server infrastructure. Citrix licensing is also a part of this subsystem, with customers installing/configuring/ managing Citrix License Servers and license files. | **CVADS - Citrix Virtual Apps and Desktops Service**, delivered via Citrix Cloud. If you're logging into Citrix Cloud and installing and registering Cloud connectors in your environment, you're using this Citrix Cloud service. You install and register Cloud Connectors on Windows instances you manage, and then Citrix keeps them evergreen and available. Citrix Cloud also provides and maintains most administrative functionality via a web browser through the Citrix Cloud console. This includes cloud service versions of Citrix Studio and Citrix Director. There is no additional infrastructure for the customer to maintain, keep highly available, or patch/update: Citrix owns this administrative responsibility. |
 |**UI (user interface) services** - Native Citrix Workspace apps (and web browsers for clientless access) ultimately connect to a URL. The subsystem behind the URL is configured by IT administrators to match corporate requirements for authentication, and to present virtualized apps/desktops, SaaS apps, and possibly much more for users to access. | **Citrix Storefront**. Also installed/ configured from CVAD LTSR or CR binaries, this role provides extreme flexibility for the most complex deployment scenarios. Typically deployed in pairs, with Citrix ADC/Gateway instances in front of them for high availability. Can aggregate and present apps and desktops from both customer managed/brokered environments (CVAD) and Citrix Cloud managed/brokered environments (CVADS). | **Citrix Workspace** (the service, not the Citrix Workspace app). Provided as a cloud service through Citrix Cloud, and includes many next generation capabilities that are only available with this service. Can aggregate and present apps and desktops from both customer managed/brokered environments (CVAD) and Citrix Cloud managed/brokered environments (CVADS). |
 | **Authentication** - In this context, we're referring to how users authenticate before accessing Citrix virtualized apps/desktops, files, SaaS apps, and more. Authentication in a Citrix environment is typically configured at the UI services layer, though Citrix ADC/Gateway can also be used for authentication in all deployment models. Each of the UI service provider options (Citrix StoreFront or Citrix Workspace) has different authentication options available, some requiring a customer managed Citrix ADC/Gateway. | **Citrix StoreFront** (plus **Citrix ADC/Gateway** for most use cases). User authentication services can be provided various different ways, though ultimately require an Active Directory instance and valid user accounts. The customer typically manages the AD instance. Citrix ADC/Gateway instances can also be used to provide authentication services, and provide a ton of advanced capabilities that are commonly used for more complex environments. Citrix Federated Authentication Services (FAS) can also be installed and used to provide session SSO for complex use cases. | **Citrix Workspace** (plus **Citrix ADC/Gateway** for certain use cases). With Citrix Workspace (the service), user authentication sources and requirements are configured once for the Citrix Cloud tenant and used by all users using this URL. It is configured for Active Directory out of the box, but for advanced use cases, can be configured to support other authentication providers. Examples include Azure AD, Okta, customer managed Citrix Gateway, Google Cloud ID, or other SAML/OpenID/RADIUS providers. Some scenarios require customer managed Citrix ADC/Gateways and Citrix Federated Authentication Services (FAS) for the best user experience. |
-| **HDX session proxy** - The ability to securely and seamlessly connect users/devices outside the private corporate network to CVAD/CVADS delivered apps and desktops on the inside. | **Citrix ADC/Gateway** appliances - these appliances (or instances) often provide a ton of extra functionality for a Citrix virtualization system. Their core job, however, is to securely proxy HDX sessions to your VDAs when clients are on public networks. Requires installation, configuration, SSL certificates, and such. Compatible with both StoreFront (customer managed UI services) and Workspace cloud service. Also compatible with both Citrix managed and customer managed session brokering options. | **Citrix Gateway Service** - provided by Citrix Cloud, this service proxies HDX session traffic to your VDAs, and it uses Citrix managed infrastructure to get the job done. Requires no public IP addresses, SSL certs, or ingress firewall rules to operate. Compatible with the Citrix Workspace service and both Citrix Cloud managed and customer managed session brokering options (CVAD and CVADS). |
+| **HDX session proxy** - The ability to securely and seamlessly connect users/devices outside the private corporate network to CVAD/CVADS delivered apps and desktops on the inside. | **Citrix ADC/Gateway** appliances - these appliances (or instances) often provide a ton of extra functionality for a Citrix virtualization system. Their core job, however, is to securely proxy HDX sessions to your VDAs when clients are on public networks. Requires installation, configuration, SSL certificates, and such. Compatible with both StoreFront (customer managed UI services) and Workspace cloud service. Also compatible with both Citrix managed and customer managed session brokering options. | **Citrix Gateway Service** - provided by Citrix Cloud, this service proxies HDX session traffic to your VDAs, and it uses Citrix managed infrastructure to get the job done. Requires no public IP addresses, SSL certs, or ingress firewall rules to operate. Compatible with the Citrix Workspace service UI and both Citrix Cloud managed and customer managed session brokering options (CVAD and CVADS). |
 
-#### Leading Practices and Recommendations
+### Leading Practices and Recommendations
 
 Whether you manage the Citrix virtualization system yourself or you use Citrix or an authorized partner to do it, consider using **cloud services** wherever possible. For use cases/environments where the cloud service doesn't meet your needs, customer managed components can be used. That said - Citrix encourages customers to be clear on why they are deploying self-managed components, and be prepared to migrate to cloud services once the cloud service meets their specific needs. The cloud services provided by Citrix through Citrix Cloud are evolving rapidly. Over time you can expect them to provide all the functionality required to serve all but the most complex use cases. Citrix Cloud services ultimately minimize the amount of infrastructure the customer is responsible for managing and maintaining. Citrix Cloud also provides highly available, pre-integrated services, and ensures customers always have access to the latest, most secure, and feature-rich services.
 
-### Common Deployment Models for Citrix Virtualization on Google Cloud
+## Common Design Patterns/Deployment Models for Citrix Virtualization on Google Cloud
 
-In this section, we'll explore three common design patterns/scenarios for deploying Citrix Virtualization on Google Cloud. We'll also discuss when and where you may want to consider using each to bring a Citrix Virtual Apps and Desktops workload to Google Cloud, and provide some recommendations for which patterns to consider for common migration scenarios.
+In this section, we'll explore three common design patterns/scenarios for deploying Citrix virtualization on Google Cloud. We'll also discuss when and where you may want to consider using each to bring a Citrix Virtual Apps and Desktops workload to Google Cloud, and provide some recommendations for which patterns to consider for common migration scenarios.
 
 The three most common scenarios for delivering Citrix Apps and Desktops on Google Cloud are:
 
 -  **Cloud Forward** design pattern: uses Citrix Cloud services with "resource locations" on Google Cloud. This scenario is commonly used when customers prefer to go to a subscription model and outsource control plane infrastructure and management responsibility to Citrix, or they're looking to experience/evaluate the capabilities provided by Citrix Cloud services.
 -  **Hybrid** deployment/workload migration to Google Cloud, using Citrix Cloud services for session brokering and administration, Workspace UI or StoreFront for content aggregation/session presentation/session launching, and may also use customer managed Citrix ADC/Gateways for HDX session proxying, complex authentication scenarios, or both.
--  **Lift and shift**. With this scenario, customers essentially move or redeploy their self-managed Citrix infrastructure into AWS, treating the deployment on AWS just like their existing customer managed deployment. With this scenario, customers use Citrix ADC/Gateway and Citrix StoreFront to aggregate resources from on-premises and AWS hosted sites. This facilitates the migration of workloads to AWS, though customers may keep their on-premises workloads around and simply add another site in AWS. The new site can be used for new workloads or to support disaster recovery (DR) and failover use cases. This model is characterized by the use of customer managed components for session brokering and administration, UI services, authentication, and HDX session proxy.
+-  **Cloud Migration** - for more conservative customers with existing investments in Citrix virtualization technology, this model leverages the flexibility of Citrix's customer managed access layer technologies (Citrix ADC/Gateway and Citrix StoreFront/Workspace Service) to provide a consistent UX to users while running an existing customer managed environment side by side with a Citrix Cloud brokered environment.
 
-This section defines these scenarios in more detail, including architectural overviews of how each scenario is commonly designed.
-You'll find that the **leading practice is to use Citrix Cloud services**, and as such this document will focus on the Citrix Cloud brokered deployment models ("Greenfield" and "Hybrid").
-
-#### Greenfield Deployment
-
-The most common example of the green field deployment model is trial or proof of concept deployments of Citrix virtualization technology on AWS cloud. Since you're essentially starting from scratch, the power of 'infrastructure as code' can be experienced since you're not trying to integrate with a bunch of existing 'stuff'. It is also a fantastic opportunity to 'play with' various cloud services and evaluate their suitability to your or your customers' needs.
-
-A green field deployment is also the quickest and easiest Citrix virtualization system you can build. You can simply tear it down when the system is no longer needed, and you stop paying for the resources it consumed. All you need for this type of deployment is an active AWS account and either a trial or paid subscription to Citrix Cloud and the Virtual Apps and Desktops Service. Armed with these two resources, you can use AWS' QuickStart CloudFormation templates to build a reference deployment. Citrix and AWS have collaborated on the [Citrix Virtual Apps and Desktops Service on AWS](https://aws.amazon.com/quickstart/architecture/citrix-virtual-apps/) quick start template, which helps you to either build an entire Citrix virtualization system from scratch, or create a Citrix Cloud "Resource Location" in an existing VPC with an existing Active Directory. When deploying the entire Citrix virtualization system from scratch, the resulting system on AWS is built closely matching the following reference architecture diagrams:
-
-![Diagram 3: Deployed system architecture detail using the CVADS on AWS QuickStart template and default parameters. Citrix Cloud Services not shown](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-aws_003.png)
-*Diagram 3: Deployed system architecture detail using the CVADS on AWS QuickStart template and default parameters. Citrix Cloud Services not shown.*
-
-![Diagram 4: Greenfield/Cloud Only deployment conceptual architecture with optional AWS services and Citrix Cloud Services](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-aws_004.png)
-*Diagram 4: Greenfield/Cloud Only deployment conceptual architecture with optional AWS services and Citrix Cloud Services.*
-
-It is worth noting that this deployment model (actually, all three deployment models\!) use [AWS Availability Zones](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) to provide a highly available design. See [Availability Zones](#infrastructure-as-code-and-the-aws-object-model) later in this document for more context.
-
-As mentioned previously, this is a great place to start when learning about AWS and Citrix Cloud services. Many of the design patterns depicted in the preceding diagram are used for hybrid and even lift and shift deployment types, so learning these design patterns suits a Citrix on AWS architect well, regardless of the deployment model.
-
-To summarize, the **green field deployment model** uses all cloud services, at least as a starting point:
-
-| Citrix virtualization system component | Provided by: |
-|---|---|
-| Session brokering and administration | Citrix Virtual Apps and Desktops Service ("CVADS," via Citrix Cloud) |
-| UI services | Citrix Workspace service (via Citrix Cloud) |
-| Authentication | Citrix Workspace service (via Citrix Cloud) |
-| HDX session proxy | Citrix Gateway Service (via Citrix Cloud) |
-| VM compute, networking, and storage | Amazon Elastic Compute Cloud (Amazon EC2), Amazon Virtual Private Cloud (Amazon VPC), Amazon Elastic Block Store (Amazon EBS) |
-| Active Directory and file systems | [AWS Directory Service for Microsoft Active Directory](https://aws.amazon.com/directoryservice/) and [Amazon's FSx for Windows File Server](https://aws.amazon.com/fsx/windows/) (optional) |
-
-We mentioned earlier that the green field deployment model is often used as a starting point for proof of concept and technology trial systems.
-If you start with this model and then drop in StoreFront or Citrix ADC/Gateway VPXs in, you're ostensibly creating our next type of deployment model: hybrid.
-
-#### Hybrid Deployment
-
-With the hybrid deployment model, customers may choose to install/configure/manage some of the [Citrix virtualization system components](#citrix-virtualization-system-components) themselves, but not the **session brokering and administration subsystem**. In a hybrid deployment model, this subsystem is provided as a cloud service called "Citrix Virtual Apps and Desktops Service" (CVADS for short), and it is delivered as a subscription from Citrix Cloud.
-
-The hybrid deployment model is the most common deployment seen today, and is the model Citrix recommends for most customers. Here are some of the primary reasons why we take this position:
+All of these design patterns leverage the Citrix Virtual Apps and Desktops Service (CVADS) for session brokering and administration. This provides the Citrix on GCP customer with a number of distinct advantages, including:
 
 -  **Simplicity** - With Citrix Cloud services, simplicity is a foundational design tenet. When multiple cloud services are used, they come pre-configured to work together, and when configuration is necessary, workflows and options are dramatically simplified.
 -  **Infrastructure and licensing cost savings** - customer managed Citrix virtualization services often require additional hardware and software to support them, and these have costs associated with them.
-    One good example is Microsoft SQL Server: customer managed brokering and administration services require databases, and if you're going to build/manage your own, you must provide them. An alternative is using the AWS Relational Database Service (Amazon RDS) for SQL Server.
--  **Autoscaling** - Citrix's managed brokering service (CVADS) includes the [**Citrix Autoscale feature**](/en-us/citrix-virtual-apps-desktops-service/manage-deployment/autoscale.html), which provides built-in VDA capacity and cost management functionality. This feature can save customers a substantial amount of money on infrastructure when they're only paying for what they use. When running a Citrix virtualization workload on AWS, this often means the difference between paying for committed use discounts or paying for VM usage as you go. The cost savings can be dramatic for many use cases, and the Citrix Autoscale feature helps ensure you're only consuming what you need.   **Important note:** *This feature is only available to Citrix Cloud customers (CVADS). It is NOT available to customer managed brokering infrastructure (CVAD LTSR or CR releases).* -  **Management savings** - With cloud services, Citrix shoulders the responsibility for keeping the services highly available, performant, secure, and up to date. You still build and manage your VDAs regardless, but don't underestimate the value of delegating these responsibilities\! Cloud services help free up IT resources, allowing them to focus on providing unique value to their businesses instead of these critical but tedious (and often time-consuming) tasks.
--  **"Free" upgrades and continuous innovation** - with customer managed infrastructure, the onus is on the customer to upgrade and patch the components in their care. With Cloud services, most of those work efforts go away. The service providers (Citrix or AWS for example) tend to be constantly innovating, and they bring those innovations to the customers who consume the services, often without requiring any work on behalf of the customer.
--  **Access to more features, functionality, and services** - modern service delivery platforms (such as Citrix Cloud and AWS EC2) give technology providers a powerful, cost-effective way to bring new features, capabilities, and services to market that would not otherwise be possible. Vendors such as Citrix are committed to meeting the customer wherever they are at in their digital transformation journey, but sometimes the only way to cost-effectively deliver new capabilities is to deliver them as a cloud service.
--  **Flexibility** - with CVADS as the foundation of this deployment model, customers can mix and match customer managed or cloud service components of the Citrix virtualization system. This allows the system to meet various different use cases and support complex enterprise requirements for a Citrix virtualization system. We'll explore these choices in depth in a later section of this paper.
+One good example is Microsoft SQL Server: customer managed brokering and administration services require databases, and if you're going to build/manage your own, you must provide them. 
+-  **Autoscaling** - Citrix's managed brokering service (CVADS) includes the [**Citrix Autoscale feature**](/en-us/citrix-virtual-apps-desktops-service/manage-deployment/autoscale.html), which provides built-in VDA capacity and cost management functionality.
+This feature can save customers a substantial amount of money on infrastructure when they're only paying for what they use. 
+When running a Citrix virtualization workload on GCP, this often means the difference between paying for committed use discounts or paying for VM usage as you go. The cost savings can be dramatic for many use cases, and the Citrix Autoscale feature helps ensure you're only consuming what you need.   
+**Important note:** *This feature is only available to Citrix Cloud customers (CVADS). It is NOT available to customer managed brokering infrastructure (CVAD LTSR or CR releases).* 
+-  **Management savings** - With cloud services, Citrix shoulders the responsibility for keeping the services highly available, performant, secure, and up to date. You still build and manage your VDAs regardless, but don't underestimate the value of delegating these responsibilities\! Cloud services help free up IT resources, allowing them to focus on providing unique value to their businesses instead of these critical but tedious (and often time-consuming) tasks.
+-  **"Free" upgrades and continuous innovation** - with customer managed infrastructure, the onus is on the customer to upgrade and patch the components in their care. With Cloud services, most of those work efforts go away. The service providers (Citrix or Google for example) tend to be constantly innovating, and they bring those innovations to the customers who consume the services, often without requiring any work on behalf of the customer.
+-  **Access to more features, functionality, and services** - modern service delivery platforms (such as Citrix Cloud and Google Cloud) give technology providers a powerful, cost-effective way to bring new features, capabilities, and services to market that would not otherwise be possible. Vendors such as Citrix are committed to meeting the customer wherever they are at in their digital transformation journey, but sometimes the only way to cost-effectively deliver new capabilities is to deliver them as a cloud service.
+-  **Flexibility** - with CVADS as the foundation of these deployment models, customers can mix and match customer managed or cloud service components for other layers of the Citrix virtualization system. This allows the system to meet various different use cases and support complex enterprise requirements for a Citrix virtualization system. We'll explore these choices in depth in a later section of this paper.
 
-To summarize, the **hybrid deployment model** uses the following:
+Some readers may be wondering why we did not mention the **Lift and Shift** model.
+As the name infers, this model uses existing, customer managed CVAD, StoreFront, and ADC/Gateway and either migrates these components to GCP as is, or installs them into GCP as part of a workload migration to Google Cloud.
+While this deployment model may seem attractive for certain specific use cases, it comes with substantial caveats that make it not suitable for production deployments.
+The biggest caveat is tied to VDA provisioning and image management: CVAD, in any flavor or version, cannot 'see' VDA's deployed on GCP.
+This means that features such as MCS, power management, and Autoscaling are unavailable in CVAD: they are only available to CVADS brokered environments.
+Customers interested in Lift and Shift should consider the **Cloud Migration** pattern instead.
+
+### Cloud Forward
+
+Organizations of all shapes and sizes are making the move to “the cloud” and subscription based managed services.
+For customers who are all in on “the cloud” (or interested in experiencing the best of what the cloud has to offer), the Cloud Forward design pattern is for you.
+The Cloud Forward design pattern:
+-  Leverages state of the art, cloud delivered services from Citrix and Google.
+-  Is commonly used for new deployments, as well as technology evaluation, proofing, training, and other use cases that value simplicity, flexibility, and speed of deployment. 
+-  Requires no existing infrastructure or licenses, and can be built in less than 30 minutes using Google Deployment Manager templates such as the Cirix on GCP GitHub project. 
+-  Provides high availability of all critical services.
+-  Is the foundation for the other two design patterns presented here. 
+
+All you need to get started with this design pattern is a GCP Project and access to a Citrix Cloud Virtual Apps and Desktops service (“CVADS”) subscription. Evaluation subscriptions to Citrix Cloud are available through Citrix and Citrix authorized resellers, and Google offers new customers a free trial which includes $300 of Google Cloud credit.
+
+![Diagram X: Cloud Forward Design Pattern](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-gcp_cloud-forward-dp.png)
+*Diagram X: Citrix on GCP - Cloud Forward Design Pattern.*
+
+This design pattern utilizes more than one of all key resources (➊) deployed in separate zones in a given Google Cloud region for high availability. 
+
+Citrix Cloud Connectors (❷) are responsible for all communications to and from Citrix Cloud (❻), leveraging outbound TLS connections to Citrix Cloud services over the Internet.
+Once installed on domain-joined Windows Server VM instances, the Cloud Connector software is automatically updated and maintained by Citrix Cloud.
+
+Apps and desktops are provided by Windows and/or Linux VM instances running Citrix’s Virtual Delivery Agent (‘VDA’) software (❸).
+The Citrix VDA software uses Citrix’s renown #[HDX technology](https://www.citrix.com/glossary/what-is-hdx.html) to provide the best possible user experience with virtualized applications and desktops.
+VDA’s register with Citrix Cloud Connectors, which are responsible for brokering HDX session connections to the VDA’s.
+HDX sessions are proxied into the VPC through the Cloud Connectors by default, or optionally through the Citrix Gateway Service by configuring the ‘rendezvous’ policy.
+VM instances can be optionally backed by [Google Cloud GPU’s](https://cloud.google.com/gpu) to create virtual workstations, thereby accelerating graphics intensive applications. 
+
+Citrix VDA’s are most commonly deployed in the same region as the infrastructure required by the applications being delivered (❹).
+As such, the application infrastructure is typically deployed or migrated into the same region as the Citrix VDA’s.
+
+End-users leverage the Citrix Workspace App (❺) (CWA) to connect to and interact with virtualized applications and desktops using Citrix’s industry leading HDX session remoting protocol.
+The CWA is available for almost any device or operating system, including Chrome OS, Windows, OSX, IOS, Android, and Linux.  
+
+This pattern leverages the following cloud services (❻) from Citrix, which are secure and highly available by design:
+-  **Citrix Virtual Apps and Desktop Service**: provides session brokering, load management, single instance image management, monitoring, and cost/capacity management services.
+-  **Citrix Workspace Service**: the user interface of the solution.
+This web service provides multi-factor authentication, content presentation, and launching services for the Citrix Workspace App.
+This service consolidates access to virtualized applications and desktops, web, and SaaS applications, as well as Enterprise file stores.
+-  **Citrix Gateway Service**: provides secure access to virtualized applications and desktops, as well as Enterprise web applications, to devices on public networks.
+-  **Citrix Analytics Service**: leverages advanced machine learning technologies to provide enterprise grade security, performance, and user behavioral analytics and reporting.
+
+This design pattern can also be paired with a Google Cloud VPN/Interconnect, or a purpose built solution like Citrix SD-WAN (❼) to extend existing Active Directory investments (❽) into Google Cloud and/or provide access to traditional, on-premises, customer managed applications and infrastructure. 
+
+To summarize, the **Cloud Forward** design pattern uses cloud services for all required virtualization system components, plus Google Cloud services for core infrastructure:
 
 | Citrix virtualization system component | Provided by: |
 |---|---|
 | Session brokering and administration | Citrix Virtual Apps and Desktops Service ("CVADS," via Citrix Cloud) |
-| UI services | Citrix Workspace service (via Citrix Cloud) **OR** Citrix StoreFront on Amazon EC2 (customer managed) |
-| Authentication | Citrix Workspace service (via Citrix Cloud) **OR** Citrix StoreFront on EC2 (Citrix ADC/Gateway optional but common) |
-| HDX session proxy | Citrix Gateway Service (via Citrix Cloud) **OR** Citrix ADC/Gateway VPX on Amazon EC2 (Citrix ADC/Gateway optional but common) |
-| VM compute, networking, and storage | Amazon Elastic Compute Cloud (Amazon EC2), Amazon Virtual Private Cloud (Amazon VPC), Amazon Elastic Block Store (Amazon EBS) |
-| Active Directory and file systems | [AWS Directory Service for Microsoft Active Directory](https://aws.amazon.com/directoryservice/) and [Amazon's FSx for Windows File Server](https://aws.amazon.com/fsx/windows/) (optional) |
+| UI services | Citrix Workspace Service (via Citrix Cloud) |
+| Authentication | Citrix Workspace Service (via Citrix Cloud) |
+| HDX session proxy | Citrix Gateway Service (via Citrix Cloud) |
+| VM compute, networking, and storage | Google Cloud Services |
 
-Given the options a customer may choose in the hybrid deployment model, and the flexibility provided by customer managed components, there isn't one, succinct architecture that fits all customers. There are, however, some common design patterns that can also be mixed/matched to suit the customers' needs. The foundational pattern, however, is the pattern for a Citrix Cloud "Resource Location" on AWS. It is also the pattern built by the [Citrix Virtual Apps and Desktops Service on AWS](https://aws.amazon.com/quickstart/architecture/citrix-virtual-apps/) QuickStart template, and it looks similar to the following architectural diagram:
+This design pattern creates a highly available Citrix Cloud "resource location" in a given GCP region.
+The core architecture of a resource location (highly available supporting services, cloud connectors, VDA's, application infrastructure, etc) is the foundation for the next two design patterns as well, and is the foundation for any Citrix virtualization system deployed on GCP.
 
-![Diagram 5: Conceptual Architecture, CVADS - Hybrid Deployment Model on AWS](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-aws_005.png)
-*Diagram 5: Conceptual Architecture, CVADS - Hybrid Deployment Model on AWS.*
+### Hybrid Deployment
 
-It is worth noting that this deployment model also uses [AWS Availability Zones](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) to provide a highly available design. See [Availability Zones](#infrastructure-as-code-and-the-aws-object-model) later in this document for more context.
+The Hybrid design pattern builds upon the Cloud Forward design pattern, introducing customer-managed access layer components from Citrix (➊) to flexibly meet the needs of specific customer demographics/use cases:
 
-It is also worth noting that the hybrid deployment model (a CVADS resource location on AWS) can be combined with a hybrid cloud model, connecting customer managed data centers/resources to AWS using AWS Direct Connect, AWS VPN, Citrix SD-WAN, or other networking tools. With this model, the customers' existing Active Directory is often extended into AWS, and customers create more Citrix Cloud 'Resource Locations' which deliver apps, desktops, and resources from the customer managed data center. The resulting conceptual architecture looks something like the following diagram:
-![Diagram 6: Conceptual Architecture, CVADS: Hybrid Deployment/Hybrid Cloud Model](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-aws_006.png)
-*Diagram 6: Conceptual Architecture, CVADS: Hybrid Deployment/Hybrid Cloud Model.*
+**Citrix ADC/Gateway** (❷): deployed as virtual or physical appliances, this component is often used for use cases requiring one or more of the following:
+-  Advanced authentication scenarios, such as SAML/OAUTH 2/OpenID federation, RADIUS, smart card, and conditional access requirements.
+-  Highly optimized and flexible session access for end user devices on public networks.
+-  Advanced networking services such as content switching, web app firewall, integrated web caching, attack mitigation, application load balancing, and SSL offload.
+-  Ability to direct specific users/devices to specific Citrix StoreFront ‘stores’ based on advanced, highly flexible, and contextually aware policies.
+Policy decisions can be based on user profile attributes, location, device type, device health, authentication results, and more.
 
-#### Lift and Shift
+**Citrix StoreFront** (❸): The predecessor of the Citrix Workspace service, StoreFront is Citrix’s ‘classic’ provider of UI services.
+Installed on customer-managed Windows Server instances, StoreFront is often used for use cases requiring one or more of the following:
+-  Extreme high availability, capable of surviving Internet and cloud service outages.
+-  Flexible session routing, with the ability to route internal user session traffic directly to VDA’s while sending external users through Citrix Gateways.
+-  Single sign-on from customer-managed, on-premises devices.
+-  The need to provide multiple ‘stores’ with different configuration properties to support very diverse use cases on the same system.
+-  The need for highly customized and/or branded, HTML based user interfaces.
 
-Referring to our definition of the [Citrix virtualization system components](#citrix-virtualization-system-components), when we're talking about a lift and shift deployment scenario, the key component is the **session brokering and administration** subsystem and associated infrastructure. If you're using **self-managed brokering infrastructure** (you're deploying Delivery Controllers instead of Cloud Connectors) then for the purposes of this paper **you're lifting and shifting.**
+![Diagram X: Hybrid Design Pattern](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-gcp_hybrid-dp.png)
+*Diagram X: Citrix on GCP - Hybrid Design Pattern.*
 
-##### Lift and Shift - why
+With the hybrid deployment model, customers may choose to install/configure/manage some of the [Citrix virtualization system components](#citrix-virtualization-system-components) themselves, but not the **session brokering and administration subsystem**.
+In a hybrid deployment model, this subsystem is provided by the Citrix Virtual Apps and Desktops Service (CVADS for short), and it is delivered as a subscription from Citrix Cloud.
 
-Despite Citrix guidance against this model, some customers still choose to go with this model and deploy/manage the Citrix virtualization system components themselves. For customers who choose the lift and shift (self-managed) deployment model, we often find that non-technical reasons are behind it. Politics, time pressures, fear of the unknown, perceived skills deficits, loss of control, and license acquisition fall into this category. There are, however, a few technical reasons why this model is appealing. These include:
-
--  **System Isolation** - some use cases, such as air-gapped systems with no Internet access, often make the lift and shift model appealing. Since cloud services require outbound Internet access to function, in a strictly air-gapped deployment, cloud services won't function. This mainly applies to the Cloud Connectors (primary component of managed session brokering services) as they need outbound Internet connectivity to communicate with and utilize the Citrix Cloud services. Some customers may consider utilizing a secure, outbound proxy for Cloud Connectors (while keeping all other infrastructure strictly air-gapped). This is often a suitable concession which allows the managed brokering services to be utilized, but even this may not be an option for some customers and use cases.
--  **Configuration flexibility** - one person's 'complex' is another person's 'flexible', and flexibility has been a strong suite of customer managed Citrix virtualization infrastructure for more than two decades. Over the years the technology has gained a ton of features that support some very niche use cases and third-party integrations. The Citrix Cloud services focus on simplicity and pre-integration. In doing so, some of these niche features and integrations are not available. Consequently, some edge cases are still best served by a customer managed stack. That said, given the rapid pace of innovation coming to the Citrix Cloud services, these edge cases are becoming increasingly rare.
--  **Control** - some organizations, cultures, and business models demand as much control as possible. With customer managed Citrix virtualization components, customers can completely own their destiny. This control comes at a cost (infrastructure, complexity, personnel, and such) but "control at all cost" is a thing for some customers.
-
-To summarize, the **lift and shift deployment model** uses the following:
+To summarize, the **hybrid design pattern** uses the following:
 
 | Citrix virtualization system component | Provided by: |
 |---|---|
-| Session brokering and administration | Citrix Virtual Apps and Desktops (customer managed using LTSR or CR downloadables) on Amazon EC2 |
-| UI services | Citrix StoreFront on Amazon EC2 (customer managed) |
-| Authentication |Citrix StoreFront on EC2 (Citrix ADC/Gateway optional but common) |
-| HDX session proxy | Citrix ADC/Gateway VPX on Amazon EC2 (customer managed) |
-| VM compute, networking, and storage | Amazon Elastic Compute Cloud (Amazon EC2), Amazon Virtual Private Cloud (Amazon VPC), Amazon Elastic Block Store (Amazon EBS) |
-| Active Directory and file systems | Customer managed Windows Server instances on EC2; [AWS Directory Service for Microsoft Active Directory](https://aws.amazon.com/directoryservice/) and [Amazon's FSx for Windows File Server](https://aws.amazon.com/fsx/windows/) (optional) |
+| Session brokering and administration | Citrix Virtual Apps and Desktops Service ("CVADS," via Citrix Cloud) |
+| UI services | Citrix Workspace Service (via Citrix Cloud) **OR** Citrix StoreFront on Google Cloud (customer managed) |
+| Authentication | Citrix Workspace Service (via Citrix Cloud) **OR** Citrix StoreFront on Google Cloud (Citrix ADC/Gateway optional with Citrix Workspace Service) |
+| HDX session proxy | Citrix Gateway Service (via Citrix Cloud) **OR** Citrix ADC/Gateway VPX on Google Cloud (customer managed) |
+| VM compute, networking, and storage | Google Cloud |
 
-In its simplest form, a lift and shift deployment of Citrix virtualization technology onto AWS resembles a traditional customer managed deployment on-premises. It uses a CVAD 'site' deployed into an AWS region and uses basic AWS IaaS services such as EC2 virtual machines and VPC networking at a minimum. As mentioned previously, it requires the customer to build/configure/maintain all system components, plus supporting services such as SQL databases. The following diagram depicts this deployment model:
-![Diagram 7: Conceptual Architecture, CVAD: Lift and Shift Deployment Model on AWS](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-aws_007.png)
-*Diagram 7: Conceptual Architecture, CVAD: Lift and Shift Deployment Model on AWS.*
+This deployment model gives the customer options for how they want to handle UI services, authentication, and HDX session proxy functionality. Detailed guidance on which options to choose are provided later in this document. 
 
-It is worth noting that this deployment model also uses [AWS Availability Zones](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) to provide a highly available design. See [Availability Zones](#infrastructure-as-code-and-the-aws-object-model) later in this document for more context.
+### Cloud Migration Design Pattern INCOMPLETE
 
-A lift and shift deployment model is often combined with a hybrid cloud infrastructure model, using AWS Direct Connect, AWS VPN, Citrix SD-WAN, or similar networking technology to connect a customer managed data center and resources to AWS. Customers can optionally adopt some of AWS' more advanced cloud services (to provide a measure of simplification with the transition), and they may also choose to host some services (such as SQL databases, Citrix licensing, Citrix StoreFront, and Citrix ADC/Gateway) either on AWS, in a customer managed data center, or both depending upon their existing investments, use case requirements, and such. A conceptual architecture of this deployment model (using AWS RDS for SQL Server or on-premises SQL server) is shown in the following diagram. Only one active instance of Citrix Licensing is needed, but we've shown multiple to depict available options:
-![Diagram 8: Conceptual Architecture, CVAD: Lift and Shift Deployment Model with Hybrid Cloud infrastructure model and AWS managed cloud services](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-aws_008.png)
-*Diagram 8: Conceptual Architecture, CVAD: Lift and Shift Deployment Model with Hybrid Cloud infrastructure model and AWS managed cloud services.*
+The Cloud Migration design pattern further builds upon the Hybrid design pattern.
+It allows customers with existing investments in Citrix technologies to systematically modernize their infrastructure, seamlessly migrating workloads to the cloud at a pace that won’t disrupt existing systems and use cases.
+Technologically conservative customers can ‘wade’ into the Cloud, workload by workload, mitigating risk along the way on the customer’s terms. 
+They can also systematically re-skill staff on the latest, most capable technologies from Citrix and Google, and build their organizational cloud readiness at a manageable pace while leveraging their existing investments in technology, infrastructure, knowledge, processes, and operationalization procedures.
 
-#### Lift and Shift - why not
+The Cloud Migration pattern leverages Citrix StoreFront(➊) and/or the Citrix Workspace (❷) user interface technologies to connect legacy Citrix environments (❸) to the new environment, as both UI’s can present multiple brokering environments in a single view with a single login. This provides users with a single UI (❹) they can leverage to access both environments. This allows the customer to deploy new workloads onto Google Cloud (❺), while systematically migrating existing workloads to Google Cloud as the businesses opportunities and constraints dictate.
 
-By now you've gathered that the Citrix leading practice/recommendation is to NOT do a full lift and shift. You may be wondering why, or where this is coming from. Referring to our breakdown of [Citrix virtualization system components](#citrix-virtualization-system-components), the **session brokering and administration** subsystem is the most critical component you'll want to consider NOT lifting and shifting. We strongly recommend customers consider using Citrix's cloud services for session brokering and administration (deploy Cloud Connectors only, vs. deploying Delivery Controllers + SQL databases + Director servers + Citrix Licensing servers). Here are some of the primary reasons why we take this position (and they might sound familiar!):
+![Diagram X: Cloud Migration Design Pattern](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-gcp_migration-dp.png)
+*Diagram X: Citrix on GCP - Cloud Migration Design Pattern.*
 
--  **Simplicity** - While customer-managed session brokering services
-    provide the ultimate in control and configuration flexibility, it comes at the cost of complexity and ongoing maintenance requirements. With Citrix Cloud services, simplicity is a foundational design tenet. When multiple cloud services are used, they come pre-configured to work together, and when configuration is necessary, workflows and options are dramatically simplified.
--  **Infrastructure and licensing cost savings** - customer managed
-    Citrix virtualization services often require additional hardware and software to support them, and these have costs associated with them.
-    One good example is Microsoft SQL Server: customer managed brokering services require databases, and if you're going to build/manage your own, you must provide them.
--  Speaking of infrastructure cost savings - this brings up a critical
-    differentiator between the two session brokering options:
-    **Autoscaling**. Citrix's managed brokering service (CVADS) includes the [**Citrix Autoscale feature**](/en-us/citrix-virtual-apps-desktops-service/manage-deployment/autoscale.html), which provides built-in VDA capacity and cost management functionality. This feature can save customers a substantial amount of money on infrastructure when they're only paying for what they use. When running a Citrix virtualization workload on AWS, this often means the difference between paying for committed use discounts or paying for VM usage as you go. The cost savings can be dramatic for many use cases, and the Citrix Autoscale feature helps ensure you're only consuming what you need. **Important note:** *This feature is only available to Citrix Cloud service (Citrix Virtual Apps and Desktops service) customers - it is not available to customer managed brokering infrastructure (Citrix Virtual Apps and Desktops LTSR or CR releases).* -  **Management savings** - With cloud services, Citrix (and AWS in this case) shoulders the responsibility for keeping the services highly available, performant, secure, and up to date. You still build and manage your VDAs regardless, but don't underestimate the value of delegating these responsibilities\! Cloud services help free up IT resources, allowing them to focus on providing unique value to their businesses instead of these critical but tedious and often time-consuming tasks.
--  **"Free" upgrades and continuous innovation** - with customer
-    managed infrastructure, the onus is on the customer to upgrade and patch the components in their care. With cloud services, most of those work efforts go away. The service providers (Citrix and AWS in this case) tend to be constantly innovating, and they bring these innovations to the customers who consume the services, often without requiring any work on behalf of the customer.
--  **Access to more features, functionality, and services -**
-    modern service delivery platforms (such as Citrix Cloud and Amazon EC2) give technology providers a powerful, cost-effective way to bring new features, capabilities, and services to market that wouldn't otherwise be possible. Vendors such as Citrix are committed to meeting the customer wherever they're at in their digital transformation journey, but sometimes the only way to cost-effectively deliver new capabilities is to deliver them as a cloud service.
+To summarize, the **Cloud Migration Design Pattern** uses the following:
 
-#### Lift and Shift - more resources
+| Citrix virtualization system component | Provided by: |
+|---|---|
+| Session brokering and administration | Citrix Virtual Apps and Desktops Service ("CVADS," via Citrix Cloud) **AND** Citrix Virtual Apps and Desktops (customer managed, LTSR or CR, on-premises) |
+| UI services | Citrix Workspace Service (via Citrix Cloud) **AND/OR** Citrix StoreFront on Google Cloud (customer managed) |
+| Authentication | Citrix Workspace Service (via Citrix Cloud) **AND/OR** Citrix StoreFront on Google Cloud (Citrix ADC/Gateway optional with Citrix Workspace Service) |
+| HDX session proxy | Citrix Gateway Service (via Citrix Cloud) **AND/OR** Citrix ADC/Gateway VPX on Google Cloud (customer managed) |
+| VM compute, networking, and storage | Google Cloud |
 
-Before Citrix Cloud services were born, customers were already successfully deploying Citrix virtualization technologies on AWS. In those days Citrix called the Virtual Apps and Desktops products XenApp and XenDesktop. Extensive work went into creating and publishing reference architectures and deployment guides for this deployment scenario. A good portion of the detail in these aging resources still applies to deployments who must go down this road today.
-
-For customers who MUST go down this route, the following published resources provide you with useful background detail you can use to help you be successful. We recommend reviewing these materials before you continue on with this document, as we'll be highlighting important design decisions that have changed since these works were completed:
-
--  [Citrix XenApp and XenDesktop 7.6 on AWS Reference Architecture](https://www.citrix.com/blogs/2015/06/18/xenapp-and-xendesktop-7-6-reference-architecture-on-aws/) (blog)
--  [Citrix XenApp and XenDesktop 7.6 on Amazon Web Services Reference Architecture](https://www.citrix.com/content/dam/citrix/en_us/documents/products-solutions/citrix-xenapp-and-xendesktop-7.6-on-amazon-web-services-reference-architecture.pdf) (guide)
--  [Using AWS Directory Service and Amazon RDS with Citrix Virtual Apps and Desktops](https://aws.amazon.com/blogs/apn/using-aws-directory-service-and-amazon-rds-with-citrix-virtual-apps-and-desktops/) (blog)
--  [Deploying Citrix Virtual Apps and Desktop with AWS Directory Service and Amazon RDS â€“ Version 1.0](https://s3-us-west-2.amazonaws.com/apnblog.awspartner.com/Citrix+Virtual+Apps+and+Desktops/Citrix+Ready-Amazon+RDS+Deployment+Guide_v1.pdf) (deployment guide)
 
 ## Design Decisions
 
-This section explores key design decisions to consider as you're architecting your Citrix virtualization system on AWS. We'll walk down through each layer of the Citrix Architectural Design Framework, exploring key areas for you to consider.
+This section explores key design decisions to consider as you're architecting your Citrix virtualization system on Google Cloud. We'll walk down through each layer of the Citrix Architectural Design Framework, exploring key areas for you to consider.
 
 ### About the Citrix Architectural Design Framework
 
 Citrix's Virtual Apps and Desktops solution (the product family name collectively referring to Citrix's virtualization technologies) enables organizations to create, control and manage virtual machines, deliver applications and desktops, and implement granular security policies. The Citrix Virtual Apps and Desktops solution provides a unified framework for developing a complete digital workspace offering. This offering enables Citrix users to access applications and desktops independent of their device's operating system and interface.
 
 The Citrix architectural design framework is based on a unified and standardized layer model. It provides a consistent and easily accessible framework for understanding the technical architecture for most of the common Virtual Apps and Desktops deployment scenarios. These layers are depicted in the following conceptual diagram:
-![Diagram 9: Conceptual Architecture, Citrix Virtual Apps and Desktops Service](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-aws_009.png)
-*Diagram 9: Conceptual Architecture, Citrix Virtual Apps and Desktops Service.*
+![Diagram X: Conceptual Architecture, Citrix Virtual Apps and Desktops Service](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-gcp_cadf.png)
+*Diagram X: Conceptual Architecture, Citrix Virtual Apps and Desktops Service.*
 
 -  ***User Layer*** - This layer defines user groups and locations of
     the Citrix environment.
@@ -271,31 +249,31 @@ The Citrix architectural design framework is based on a unified and standardized
 -  ***Operations Layer*** - This layer defines the tools that support
     the delivery of the core solutions.
 
-### User Layer Considerations
+## Design Decisions - User Layer Considerations
 
 In the Citrix Architectural Design Framework, the User layer describes the user groups, their locations, specific requirements, and more. The user layer appropriately sets the overall direction for each user group's environment. This layer incorporates the assessment criteria for business priorities and user group requirements to define effective strategies for endpoints and Citrix Workspace App. These design decisions affect the flexibility and functionality for each user group.
 
 When designing and deploying a Citrix virtualization system on any platform, the decisions and strategies adopted after careful assessment set the foundation for many other decisions that customers ought to consider as they work their way down through the other layers in the Citrix Architectural Design Framework. As such, this is a critical layer to understand thoroughly and get right\!
 
-Fortunately, these considerations are already well documented, and don't differ substantially between systems deployed on AWS and any other hardware/cloud platform. For a thorough primer on the design considerations for this layer, see [Citrix VDI Handbook and Best Practices for XenApp and XenDesktop 7.15 LTSR](/en-us/xenapp-and-xendesktop/7-15-ltsr/downloads/handbook-715-ltsr.pdf) document, and the [Design methodology user layer](/en-us/xenapp-and-xendesktop/7-15-ltsr/citrix-vdi-best-practices/design/design-userlayer1.html) page in particular, for details.
+Fortunately, these considerations are already well documented, and don't differ substantially between systems deployed on GCP and any other hardware/cloud platform. For a thorough primer on the design considerations for this layer, see [Citrix VDI Handbook and Best Practices for XenApp and XenDesktop 7.15 LTSR](/en-us/xenapp-and-xendesktop/7-15-ltsr/downloads/handbook-715-ltsr.pdf) document, and the [Design methodology user layer](/en-us/xenapp-and-xendesktop/7-15-ltsr/citrix-vdi-best-practices/design/design-userlayer1.html) page in particular, for details.
 
-### Access Layer Considerations
+## Design Decisions - Access Layer Considerations
 
-In the Citrix Architectural Design Framework, the Access layer defines how users access AWS resources. The design of your access layer is critical to the functionality delivered by any Citrix virtualization system. It controls how users authenticate to the system. It also controls how users view and launch virtualized applications and desktops, plus what type of applications and content are available to them. Additionally, the Access layer controls how and when sessions are securely proxied or directly connected.
+In the Citrix Architectural Design Framework, the Access layer defines how users access virtualized apps and desktops. The design of your access layer is critical to the functionality delivered by any Citrix virtualization system. It controls how users authenticate to the system. It also controls how users view and launch virtualized applications and desktops, plus what type of applications and content are available to them. Additionally, the Access layer controls how and when sessions are securely proxied or directly connected.
 
 In the context of the [Citrix virtualization system components](#citrix-virtualization-system-components) we defined earlier, the access layer contains the following components and choices:
 
 | Citrix virtualization system component | Provided by: |
 |---|---|
-| UI services | Citrix Workspace (provided by Citrix Cloud) **OR** Citrix StoreFront on Amazon EC2 (customer managed) |
-| Authentication | Citrix Workspace service (Citrix ADC/Gateway optional) **OR** Citrix StoreFront on EC2 (Citrix ADC/Gateway optional but common) |
-| HDX session proxy | Citrix Gateway Service (provided by Citrix Cloud) **OR** Citrix ADC/Gateway VPX on Amazon EC2 (customer managed) |
+| UI services | Citrix Workspace Service (cloud service) **OR** Citrix StoreFront (customer managed) |
+| Authentication | Citrix Workspace Service (Citrix ADC/Gateway optional) **OR** Citrix StoreFront (Citrix ADC/Gateway optional but common) |
+| HDX session proxy | Citrix Gateway Service (cloud service) **OR** Citrix ADC/Gateway VPX (customer managed) |
 
-The following table contains critical decision points when determining which access layer component to deploy, but the choice is certainly not binary\! Citrix supports various different access methods that can be customized to suit your needs.
+The following table contains critical decision points when determining which access layer component to deploy based upon available or required attributes/capabilities:
 
-#### UI Service and Authentication Considerations
+### UI Service and Authentication Considerations
 
-Consider the following when choosing how you want to provide UI services for your Citrix virtualization system on AWS:
+Consider the following when choosing how you want to provide UI services for your Citrix virtualization system:
 
 | Attribute / Capability | Customer Managed (installed from downloaded binaries) | Cloud Service (delivered via Citrix Cloud) |
 |---|---|---|
@@ -305,7 +283,7 @@ Consider the following when choosing how you want to provide UI services for you
 | Ability to access/index/search Citrix Files (formerly ShareFile) content through the Citrix Workspace app and web browsers (HTML). | **NO** - StoreFront does not have the ability to integrate file-based content into either Workspace App or StoreFront HTML UIs. | **YES** - Enabled by default depending upon the subscription to Citrix Cloud. Brings users' file-based content from various sources (including on-premises file shares) into the Workspace UI, both HTML and Workspace App. |
 | Ability to present and launch connections to physical desktops using the [Citrix Remote PC Access](/en-us/citrix-virtual-apps-desktops/install-configure/remote-pc-access.html) feature. | **YES** - Regardless of whether brokering is handled by CVAD or CVADS. | **YES** - Regardless of whether brokering is handled by CVAD or CVADS. |
 | Ability to guide users' work and automate repetitive tasks by using microapps integrated with various different SaaS and custom applications. | **NO** - The microapps feature is not currently available with Citrix StoreFront. | **YES** - Presents users with a 'feed' in the Workspace UI that intelligently surfaces notifications, tasks, and workflows defined by in-box and custom microapps and the low code Microapp builder console. See [Workspace Intelligence Features - Microapps](/en-us/tech-zone/learn/tech-briefs/workspace-microapps.html) and [Microapps](/en-us/citrix-microapps) on Citrix Docs for more information. |
-| For multi-site and DR use cases, ability to granularly control session launch behavior using Zone Preference and Failover. | **YES** - Using Citrix Zones for deployments across multiple AWS Regions and Availability Zones is a great way to expand east-west and limit the affected user base in the case of an outage, and allows for Region preference and failover to the Primary Zone seamlessly. See [CVAD Zones documentation](/en-us/citrix-virtual-apps-desktops/manage-deployment/zones.html). | **Partial** - Workspace service doesn't include the fully featured zone preference and failover functionality, but a similar effect can be implemented using home zones for users or apps. See [CVADS Zones documentation](/en-us/citrix-virtual-apps-desktops-service/manage-deployment/zones.html) for details. |
+| For multi-site and DR use cases, ability to granularly control session launch behavior using Zone Preference and Failover. | **YES** - Using Citrix Zones for deployments across multiple GCP Regions is a great way to expand east-west and limit the affected user base in the case of an outage, and allows for Region preference and failover to the Primary Zone seamlessly. See [CVAD Zones documentation](/en-us/citrix-virtual-apps-desktops/manage-deployment/zones.html). | **Partial** - Workspace service doesn't include the fully featured zone preference and failover functionality, but a similar effect can be implemented using home zones for users or apps. See [CVADS Zones documentation](/en-us/citrix-virtual-apps-desktops-service/manage-deployment/zones.html) for details. |
 | Ability to broker new and existing connections when a connection between a resource location/zone and Citrix Cloud fails, or when the databases underneath Citrix Delivery Controllers are unavailable. | **YES** - Uses the Local Host Cache feature on both Cloud Connectors and Delivery Controllers to provide resiliency for these two potential failure scenarios. **For environments with extensive resiliency requirements, Citrix recommends deploying StoreFront with Local Host Cache.** For more information see [Local Host Cache (CVAD)](/en-us/citrix-virtual-apps-desktops/manage-deployment/local-host-cache.html). | **YES** - Cloud Connectors use the Local Host Cache feature to broker resource connections in the event of Citrix Cloud communication failure. This requires passive StoreFront servers accessible by your resource locations to handle failover scenarios. For more information see [Local Host Cache (CVADS)](/en-us/citrix-virtual-apps-desktops-service/manage-deployment/local-host-cache.html). |
 | Ability to configure and utilize a customized 'vanity URL' for end-user consumption. | **YES** - Customer has full control of the URL's and certificates used and presented to users. Does require SSL certificates, DNS alias creation/management, and Citrix ADC/Gateway instances for ingress over public networks. | **Partial** - All Workspaces are delivered from the cloud.com domain, though customers can [configure their own customized prefix](/en-us/citrix-cloud/workspace-configuration.html) (customername.cloud.com). |
 | Ability to intelligently route on-network users directly to VDAs and off-network users through Citrix ADC/Gateway VPX or Citrix Gateway Service. | **YES** - StoreFront uses administrator defined 'beacons', which the Citrix Workspace app uses to determine if a user is on or off-network. | **Coming Soon** - This feature is expected to be available on Citrix Workspace with the release of the Network Location Service once it is generally available. For more information, see [Network Location Service preview](/en-us/citrix-cloud/workspace-network-location.html). |
@@ -317,46 +295,44 @@ Consider the following when choosing how you want to provide UI services for you
 
 #### HDX Session Proxy Considerations
 
-Consider the following when choosing how you want to provide HDX session proxy functionality for your Citrix virtualization system on AWS:
+Consider the following when choosing how you want to provide HDX session proxy functionality for your Citrix virtualization system:
 
-| Attribute / Capability | Customer Managed (Citrix ADC/Gateway VPX on AWS) | Cloud Service ([Citrix Gateway Service](/en-us/citrix-gateway-service.html) provided by Citrix Cloud) |
+| Attribute / Capability | Customer Managed (Citrix ADC/Gateway) | Cloud Service (Citrix Gateway Service) |
 |---|---|---|
 | Simple, pre-configured service, providing HDX proxy with no administrative overhead | **NO** - As a customer managed component, these appliances require licensing, installation, configuration, and maintenance. | **YES** - [Citrix Gateway Service](/en-us/citrix-gateway-service.html) is a complete HDX proxy solution, managed by Citrix, delivered as a cloud service. |
 | Ability to use Citrix HDX's EDT (UDP) based transport protocol. For more information, see [Adaptive Transport](/en-us/citrix-virtual-apps-desktops/technical-overview/hdx/adaptive-transport.html) and [How to Configure HDX Enlightened Data Transport Protocol](https://support.citrix.com/article/CTX220732). | **YES** - This feature optimizes traffic from high-latency sites and is available for customer managed ADC/Gateway instances. | **Not Yet** - This feature is in preview as of this writing. The Gateway Service currently only supports TCP based connections to VDAs. |
-| Ability to provide load balancing, health checking, SSL offload, and various other advanced networking and application delivery services for customer managed infrastructure. | **YES** - Citrix ADC/Gateway VPX appliances provide very sophisticated, industry leading capabilities, many of which can be enabled by simply applying the appropriate type of license to the appliance. | **NO** - For Citrix CVAD and CVADS brokered environments, the Gateway Service provides simple, secure access to virtualized applications running either in customer's AWS or on-prem environments. |
+| Ability to provide load balancing, health checking, SSL offload, and various other advanced networking and application delivery services for customer managed infrastructure. | **YES** - Citrix ADC/Gateway VPX appliances provide very sophisticated, industry leading capabilities, many of which can be enabled by simply applying the appropriate type of license to the appliance. | **NO** - For Citrix CVAD and CVADS brokered environments, the Gateway Service provides simple, secure access to virtualized applications running either in customer's Google Cloud or on-prem environments. |
 | Support for customer configurable Global Server Load Balancing (GSLB) between data centers, zones, and regions. | **YES** - Customer managed Citrix ADC/Gateway instances can be set up for GSLB, though the customer is responsible for setup and management. | **NO** - ...however there is no real need for it: the Gateway Service uses [14 or more POP's worldwide plus integrated GSLB](https://www.citrix.com/blogs/2019/07/02/new-citrix-gateway-pops-now-available-in-india-and-south-africa/) to ensure users get the best possible session performance regardless of where in the world they are. |
 | Requires use of Citrix Workspace UI for HDX session presentation and launching. | **NO** - It is possible to use customer managed Citrix ADC/Gateway VPX instances with both Workspace UI and StoreFront. | ** **YES** - The Gateway Service is only configurable through the Citrix Workspace UI for HDX proxy - it does NOT provide HDX proxy capabilities for Citrix StoreFront. |
 | Requires additional resources on Cloud Connector instances to proxy sessions into secured networks. | **NO** - While Cloud Connectors perform STA ticket validation for customer managed Citrix ADC/Gateway VPX instances, no additional resources are needed since all HDX sessions are proxied through the VPXs. | **YES** - Today the Gateway Service uses long lived, outbound TCP connections from the Cloud Connector instances to Citrix Cloud to proxy HDX traffic back into private networks. This requires additional resource considerations when sizing and configuring Cloud Connector instances. See [this article](/en-us/citrix-virtual-apps-desktops-service/install-configure/install-cloud-connector/cc-scale-and-size.html) for more details. **Note** - this requirement is moot for most use cases once the Gateway Service and VDAs can use the Rendezvous protocol/feature. This requires Citrix VDA 1912 or newer. |
-| Ability to be used with Citrix Cloud Government tenants. | **YES** - Both on-prem and AWS EC2-based ADC/Gateway/StoreFront deployments are supported. | **YES** - Citrix Workspace is available in Citrix Cloud Government. |
-| Ability to support air-gapped AWS clouds/environments with no outbound internet connectivity. | **YES** - Customer-managed deployments of ADC/Gateway (and StoreFront) are supported for both on-prem and AWS EC2-based instances. | **NO** - Air-gapped AWS environments have no access to Citrix Cloud or Citrix Cloud Government, therefore Gateway Service and Workspace Service are currently not available. |
+| Ability to be used with Citrix Cloud Government tenants. | **YES** - Both on-prem and Google Cloud-based ADC/Gateway/StoreFront deployments are supported. | **YES** - Citrix Workspace is available in Citrix Cloud Government. |
 
 #### Summary, Recommendations, and Leading Practices
 
-Now that we've reviewed some of the attributes/features/capabilities that help drive your customer managed vs. cloud service decisions for the Access Layer subsystems, let's examine the top level decisions in the context of the [deployment models](#common-deployment-models-for-citrix-virtualization-on-aws) we defined earlier.
+Now that we've reviewed some of the attributes/features/capabilities that help drive your customer managed vs. cloud service decisions for the Access Layer subsystems, let's examine the top level decisions in the context of the [design patterns/deployment models](#common-design-patternsdeployment-models-for-citrix-virtualization-on-google-cloud) we defined earlier.
 
-##### Access Layer: Greenfield/Cloud Only Deployment
+##### Access Layer: Cloud Forward Design Pattern
 
-Since the green field or cloud only deployment model use cloud services across the board, the AWS specific implications on the design of your Citrix virtualization system are simple: there aren't any\!
-It's not necessary build or configure anything on AWS since everything required for both UI and HDX proxy services is provided for you, configured and ready to go 'out of the box'.
+Since the Cloud Forward deployment model use cloud services across the board, the Google Cloud specific implications on the design of your Citrix virtualization system are simple: there aren't any\!
+It's not necessary build or configure anything on Google Cloud since everything required for both UI and HDX proxy services is provided for you, configured and ready to go 'out of the box'.
 
 The Access Layer of a Citrix deployment is a key requirement for delivering virtual apps and desktops to users. If an access point is unreachable or fails, users cannot access their resources. Network design and implementation can be complicated, but with Citrix Gateway Service and Citrix Workspace, redundancy, failover, maintenance, and global presence are all part of the package - with no networking knowledge required\! Using the Citrix Gateway Service and Citrix Workspace can reduce your infrastructure footprint substantially. By moving the access layer to a cloud services model, users can securely access network resources from anywhere in the world. This approach requires the least deployment and maintenance efforts, so it is a great option if you want to get up-and-running quickly, have a limited IT staff, or if infrastructure is not your focus. With everything pre-configured, this deployment model is the least customizable, but for deploying a simple, secure, fully functional, globally accessible system, using Citrix Workspace and Gateway Service for your access layer is the way to go.
 
-##### Access Layer: Hybrid Deployment
+##### Access Layer: Hybrid and Cloud Migration Design Patterns
 
-With the hybrid deployment model, you're going to be building/managing some of the Citrix virtualization system components, otherwise it is a green field or cloud only deployment by definition\! With the hybrid model, you're possibly deploying Citrix ADC/Gateway VPXs on AWS or even on-premises, and depending upon your requirements, you might also be deploying Citrix StoreFront on AWS or on-premises. Customers who have made significant investments in their on-premises Gateway and identity solutions can benefit from the ability to use [Citrix Gateway as the identity provider for Workspace](/en-us/citrix-adc/13/aaa-tm/use-citrix-gateway-as-idp-for-citrix-cloud.html).
+With the Hybrid and Cloud Migration design patterns, you're going to be building/managing some of the Citrix virtualization system components yourself, otherwise it is a Cloud Forward deployment by definition\! With either pattern, you're deploying Citrix ADC/Gateway VPXs on Google Cloud or even on-premises, and depending upon your requirements, you might also be deploying Citrix StoreFront. Customers who have made significant investments in their on-premises Gateway and identity solutions can benefit from the ability to use [Citrix Gateway as the identity provider for Workspace](/en-us/citrix-adc/13/aaa-tm/use-citrix-gateway-as-idp-for-citrix-cloud.html).
 
-This deployment model is common for security-focused deployments, deployments with current on-prem infrastructure (ADC or StoreFront), and for DR/failover sites for existing customer managed data centers. One of the key considerations for this model is keeping your users, resources, and access points as close together as possible.
-Choose AWS regions near the on-prem resource locations in which to deploy your Access Layer. Where possible, keep your ADCs and StoreFront servers as close as possible to each other. This is where things can get tricky\! Consider the [Citrix Virtual Apps and Desktops launch sequence](https://www.basvankaam.com/2016/12/19/demystifying-the-citrix-xenapp-logon-enumeration-and-launch-steps-new-details-included/) when designing your hybrid deployment, noting especially that all traffic is routed through the Citrix ADC.
+These deployment models are common for security-focused deployments, deployments with current on-prem infrastructure (ADC or StoreFront), and for DR/failover sites for existing customer managed data centers.
+One of the key considerations for this model is keeping your users, resources, and access points as close together as possible.
+Choose Google Cloud regions near the on-prem resource locations in which to deploy your Access Layer.
+Where possible, keep your ADCs and StoreFront servers as close as possible to each other.
+However, this is where things can get tricky\! Consider the [Citrix Virtual Apps and Desktops launch sequence](https://www.basvankaam.com/2016/12/19/demystifying-the-citrix-xenapp-logon-enumeration-and-launch-steps-new-details-included/) when designing your Hybrid or Cloud Migration deployment, noting especially that all traffic is routed through the Citrix ADC.
 
-With Citrix ADC/Gateway and StoreFront as EC2-based instances in AWS, there is also much more potential for customization. In addition to the multiple StoreFront stores, multifactor authentication, and various industry-leading ADC features, hybrid deployments can also use native AWS services such as the Relational Database Service (RDS) and AWS Directory Services. Hybrid deployments lend well to a more gradual cloud transition and leave room for adjustments to the architecture along the way, as opposed to lift and shift methods.
+With Citrix ADC/Gateway and StoreFront as GCE-based instances in Google Cloud, there is also much more potential for customization to the UI and authentication flows.
 
-The hybrid approach does require a higher level of expertise and increased lead time to deploy than the greenfield/cloud only model, but can serve as a solid transition state between a traditional customer managed/on-prem deployment and cloud only state.
+Either of these approaches  require a higher level of expertise and increased lead time to deploy than the Cloud Forward model, but can serve as a solid transition state between a traditional customer managed/on-prem deployment and cloud only state.
 
-##### Access Layer: Lift and Shift Deployment
-
-With the legacy lift and shift deployment model, you're deploying both Citrix ADC/Gateway VPXs and Citrix StoreFront on AWS, or potentially reusing existing on-premises deployments of these technologies for the same purpose. This type of deployment tends to have the least lead time for customers with existing on-prem Citrix virtualization environments, and is also the easiest transition from an Operations and Maintenance perspective. Staff with experience managing an on-prem environment will have a shorter ramp-up time with the lift and shift deployment model, as the Citrix infrastructure remains largely unchanged. For the access layer specifically, this method is very straightforward and allows for many customizations. The lift and shift is a great first step for existing deployments going into the cloud or for new or air-gapped AWS regions, but may be a hindrance to adopting a cloud-forward architecture in the future.
-
-### Citrix ADC/Gateway VPX on AWS
+### Citrix ADC/Gateway VPX on Google Cloud INCOMPLETE
 
 Deploying the Citrix ADC/Gateway on AWS is different than deploying it on premises, though in the end you're managing them yourself.
 Fortunately deploying Citrix ADC/Gateway on AWS is thoroughly documented, so we recommend reviewing the following resources before you solidify your design and begin implementation:
@@ -384,7 +360,7 @@ While Citrix ADC VPX generally supports single, dual, or multiple NIC deployment
 ![Diagram 11: Citrix ADC VPX instance interface mapping for CVAD/CVADS deployments](/en-us/tech-zone/design/media/reference-architectures_citrix-virtual-apps-and-desktops-on-aws_011.png)
 *Diagram 11: Citrix ADC VPX instance interface mapping for CVAD/CVADS deployments.*
 
-#### ADC High Availability across Availability Zones
+#### ADC High Availability across Zones
 
 As mentioned earlier, this is the most common deployment model for Citrix virtualization systems. This model uses a pair of Citrix ADC VPXs deployed across Availability Zones by either using Citrix ADC's native HA (active/passive) feature or a combination of Citrix ADC's native Global Service Load Balancing (GSLB) and IPSet features.
 The latter option (which became feasible in early 2020) allows for an active/active configuration across AZs, and functions by allowing the ADC to act as an authoritative DNS source. This new option/architecture is expected to be popular for public cloud deployments, so we'll focus on that here.
@@ -399,74 +375,62 @@ When VPXs in an HA pair reside in different Availability Zones, the secondary AD
 
 For more information on adding a remote node to an ADC to create an INC-based HA pair, see [Citrix docs](/en-us/citrix-gateway/13/high-availability/ng-ha-routed-networks-con/ng-ha-add-remote-node-tsk.html) and watch [this video](https://www.youtube.com/watch?v=HhBxA_5Y2Cc&feature=youtu.be) from the Citrix YouTube channel.
 
-### Citrix StoreFront on AWS
+### Citrix StoreFront on Google Cloud
 
-Deploying Citrix StoreFront on AWS is not much different than deploying it on premises, and in the end, you're also managing all the components of StoreFront yourself too. See [Plan your StoreFront deployment](/en-us/storefront/current-release/plan.html) for general considerations which apply to all deployments including StoreFront on AWS. The main difference is that you typically deploy multiple StoreFront instances in a StoreFront server group across multiple AWS availability zones. It is important to note that the features enabled with this design are **dependent upon latency between AZs**. Per [Plan your StoreFront Deployment/Scalability](/en-us/storefront/current-release/plan.html#scalability), StoreFront server group deployments are only supported where links between servers in a server group have latency of less than 40 ms (with subscriptions disabled) or less than 3 ms (with subscriptions enabled).
-Make sure you measure latencies between instances in all AZs you plan to host StoreFront and enable/disable subscriptions accordingly.
+Deploying Citrix StoreFront on Google Cloud is not much different than deploying it on premises, and in the end, you're also managing all the components of StoreFront yourself.
+See [Plan your StoreFront deployment](/en-us/storefront/current-release/plan.html) for general considerations which apply to all deployments including StoreFront on Google Cloud. 
+The main difference is that you typically deploy multiple StoreFront instances in a StoreFront server group across multiple Google Cloud Zones. It is important to note that the features enabled with this design are **dependent upon latency between zones**. Per [Plan your StoreFront Deployment/Scalability](/en-us/storefront/current-release/plan.html#scalability), StoreFront server group deployments are only supported where links between servers in a server group have latency of less than 40 ms (with subscriptions disabled) or less than 3 ms (with subscriptions enabled).
+Make sure you measure latencies between instances in all Zones you plan to host StoreFront and enable/disable subscriptions accordingly.
 
-We already called this out in the [UI Service and Authentication Considerations](#ui-service-and-authentication-considerations) table earlier in this document, but it is worth calling out again: **for Citrix Virtual Apps and Desktops Service environments with extensive resiliency requirements, Citrix strongly recommends a StoreFront implementation to fully benefit from the Local Host Cache feature** (available in both CVAD and CVADS session brokering infrastructure types). For CVAD, this provides resiliency if there is a database outage.
-For CVADS, this architecture provides resiliency in case Cloud Connectors cannot reach Citrix Cloud. In either case, disconnected users will still be able to connect to new and existing sessions during an outage scenario. For more details, limitations, and implications of Local Host cache activation, see [Local Host Cache (CVADS)](/en-us/citrix-virtual-apps-desktops-service/manage-deployment/local-host-cache.html) and [Local Host Cache (CVAD)](/en-us/citrix-virtual-apps-desktops/manage-deployment/local-host-cache.html).
+We already called this out in the [UI Service and Authentication Considerations](#ui-service-and-authentication-considerations) table earlier in this document, but it is worth calling out again: **for environments with extensive resiliency requirements, Citrix strongly recommends a StoreFront implementation to fully benefit from the Local Host Cache feature**. This architecture provides resiliency in case Cloud Connectors cannot reach Citrix Cloud. If this happens, users will still be able to connect to new and existing sessions during an outage scenario. For more details, limitations, and implications of Local Host cache activation, see [Local Host Cache (CVADS)](/en-us/citrix-virtual-apps-desktops-service/manage-deployment/local-host-cache.html).
 
-While we're on the topic of resilience, Citrix also recommends that your StoreFront implementation span multiple AZs (if the AWS region includes multiple AZs), but remember to take the ADC design into account\!
+As mentioned above, Citrix recommends that your StoreFront implementation span multiple Google Cloud Zones, but remember to take the ADC design into account\!
 Citrix ADC is often used in front of StoreFront instances to provide load balancing and additional service resiliency.
-
-By utilizing [Citrix Zones](/en-us/xenapp-and-xendesktop/7-15-ltsr/manage-deployment/zones.html), StoreFront redundancy can be built in by spreading satellite zones across two or more AZs in a VPC with a single site. Using Zones is a great way to have resources as close to the users as possible and highly available. Satellite Zones contain StoreFront servers, Delivery Controllers, and app/desktop resources, leaving the Primary Zone with the full infrastructure setup, including the license server and SQL.
-This allows for scalability of StoreFront web UI and Zone creation/destruction can be orchestrated. Keeping the Zones smaller will allow for optimal east-west scalability and reduce the impact in the case of an outage.
-
-StoreFront on AWS is fully customizable, including Featured App Groups, splash page, coloring and logo, and apps and desktops can be arranged in the best way for your specific needs. StoreFront on AWS also requires knowledgeable administration and engineering to be kept up, but can provide a powerful web UI, especially when integrated with the Citrix ADC\!
 
 ## Resource Layer Considerations
 
-The Resource Layer design focuses on personalization, applications, and image design. The Resource Layer is where users interact with desktops and applications. When deploying a Citrix virtualization system on AWS, the key things to keep in mind (aside from all the 'normal' stuff we won't cover here) are:
+The Resource Layer design focuses on personalization, applications, and image design. The Resource Layer is where users interact with desktops and applications. When deploying a Citrix virtualization system on Google Cloud, the key things to keep in mind (aside from all the 'normal' stuff we won't cover here) are:
 
 -  **CIFS storage and data replication** - Regardless of the tooling
     you use for managing user personalization settings (the users' Windows profile and redirected folders) you've got to have Windows file shares to store them on. If you've got VDAs in multiple regions (and users can access apps/desktops in more than one) then you've also got to deal with data replication. Many applications also use Windows file shares, so CIFS storage and data replication are important for these too.
 -  **Image design** - Citrix App Layering and Citrix Provisioning
-    Services (PVS) do not currently support Amazon EC2 - customers hosting a resource location in AWS use Machine Creation Services for VDA fleet creation, management, and updating.
+    Services (PVS) do not currently support Google Cloud - customers hosting a resource location in Google Cloud use Machine Creation Services for VDA fleet creation, management, and updating.
 
 ### CIFS Storage and Data Replication
 
-Most Citrix virtualization systems on AWS require at least basic access to a Windows compatible file share to persist user settings, user data, and application data. When these shares are not available, the user experience and application functionality suffer, so it is important to ensure that whatever solution you choose to provide Windows compatible file shares is highly available and data is regularly backed up.
+Most Citrix virtualization systems require at least basic access to a Windows compatible file share to persist user settings, user data, and application data. When these shares are not available, the user experience and application functionality suffer, so it is important to ensure that whatever solution you choose to provide Windows compatible file shares is highly available and data is regularly backed up.
 
-For multi-site deployments, reliable and performant data replication may also be necessary to meet availability, RPO, and RTO needs. This is especially true for environments where users may connect to desktops/apps in 2 or more regions, and application data/user settings must be available in the region where the apps/desktops run. The following section describes some solutions to consider for providing CIFS storage and data replication services on AWS.
+For multi-site deployments, reliable and performant data replication may also be necessary to meet availability, RPO, and RTO needs. This is especially true for environments where users may connect to desktops/apps in 2 or more regions, and application data/user settings must be available in the region where the apps/desktops run. The following section describes some solutions to consider for providing CIFS storage and data replication services on Google Cloud.
 
-While non-Windows solutions for providing Windows file shares exist, most of these solutions cannot deliver the indexing capabilities required for search functionality inside a Windows desktop or applications such as Microsoft Outlook running on Windows. As such, most customers turn to Windows-based file server solutions, at least for storing user profiles and persistent application data. Fortunately, both customer managed and cloud service options are available for use when Citrix virtualization systems are run on AWS.
+While non-Windows solutions for providing Windows file shares exist, most of these solutions cannot deliver the indexing capabilities required for search functionality inside a Windows desktop or applications such as Microsoft Outlook running on Windows. As such, most customers turn to Windows-based file server solutions, at least for storing user profiles and persistent application data. Fortunately, both customer managed and cloud service options are available for use when Citrix virtualization systems are run on Google Cloud.
 
-#### Customer Managed: Windows File Servers on Amazon EC2
+#### Customer Managed: Windows File Servers on Google Cloud
 
-The first solution many customers consider for providing Windows compatible file services on AWS is building their own Windows file servers on EC2 to serve each resource location on AWS. Since Windows file servers are needed by various different types of applications and workloads, many IT shops may gravitate towards building and managing their own since this is something they know how to do. At the most basic level, the customer spins up one or more Windows EC2 instances, attach additional Amazon Elastic Block Store (EBS) volume, join the instance's to their Active Directory, and get busy configuring and setting up Windows File Services.
+The first solution many customers consider for providing Windows compatible file services on Google Cloud is building their own Windows file servers on GCE to serve each resource location. Since Windows file servers are needed by various different types of applications and workloads, many IT shops may gravitate towards building and managing their own since this is something they know how to do. At the most basic level, the customer spins up one or more Windows VM instances, attach additional storage volumes, join the instance's to their Active Directory, and get busy configuring and setting up Windows File Services.
 
 This option, as you might imagine, provides customers with the most control and flexibility. While this is very appealing to certain types of customers and certain verticals, it also comes at a cost: the responsibility to size, scale, build, manage, patch, secure, and maintain everything from the Windows OS up. Customers electing to go this route ought to also ensure these file servers are highly available.
-This is often accomplished using file servers in multiple Availability Zones, and using Windows DFS-N/DFS-R, though it's easy to end up in an unsupported configuration (per Microsoft) if you're not careful.
+This is often accomplished using file servers in multiple Zones, and using Windows DFS-N/DFS-R, though it's easy to end up in an unsupported configuration (per Microsoft) if you're not careful.
 
-***Note:** Customers considering this option ought to review [Microsoft's support statement](https://support.microsoft.com/en-ca/help/2533009/information-about-microsoft-support-policy-for-a-dfs-r-and-dfs-n-deplo) regarding using DFS-R and DFS-N for roaming profile shares and folder redirection shares.*
-One additional point to consider since the Citrix virtualization system will be running on AWS: a new deployment or migration event may provide an excellent opportunity to evaluate using a cloud service for Windows file services instead of building your own. Fortunately, Amazon has some cloud service options worth considering. We'll touch on some of these now.
-
-#### Cloud Service: Amazon FSx for Windows File Server
-
-[Amazon's FSx for Windows File Server](https://aws.amazon.com/fsx/windows/) is a cloud service which customers can consume on AWS. FSx for Windows File Server provides a fully managed, native Windows file system, and SSD-based storage with consistent sub-millisecond performance. Since FSx is built on Windows Server, it delivers a fully native, Windows compatible file system that provides storage and protection for Citrix virtualization systems on AWS. FSx for Windows File Server is also Citrix Ready Verified, meaning this AWS supported solution has been validated by Citrix to be compatible with Citrix Virtual Apps and Desktops. While it is not officially supported by Citrix, the service IS fundamentally native Microsoft Windows file server - it is just managed by AWS instead of the customer. For more information, see [Amazon FSX for Windows File Server on Citrix Ready](https://citrixready.citrix.com/amazon-com/amazon-fsx-for-windows-file-server.html).
-
-For IT teams, this is an excellent option that removes many of the more mundane or low-value tasks around deploying and managing storage. Most importantly, using FSx offloads security, data protection/backup, compliance, software updating/patching tasks, and the monitoring of storage infrastructure to make sure it meets required service levels. IT teams can treat the entire FSx file service as a single operational platform instead of managing a Windows operating system file server, storage, networking, and such. Additionally, FSx supports all the common management tools it already uses, such as Active Directory (AD) integration, Windows DFS Namespaces, DFS Replication, and others.
-
-Each FSx managed file system you create essentially becomes a highly available and durable file server in a specific Availability Zone. For servicing a Citrix virtualization system, customers ought to ensure these "file systems" are highly available. This can be accomplished by provisioning FSx managed file systems in multiple availability zones, and using Windows DFS-N/DFS-R to create highly available Windows file shares, though it's easy to end up in an unsupported configuration (per Microsoft) if you're not careful.
-
-***Note:** Since FSx is a Windows file server, customers considering this option ought to review [Microsoft's support statement](https://support.microsoft.com/en-ca/help/2533009/information-about-microsoft-support-policy-for-a-dfs-r-and-dfs-n-deplo) regarding using DFS-R and DFS-N for roaming profile shares and folder redirection shares.*
+***Note:** Customers considering this option are advised to review [Microsoft's support statement](https://support.microsoft.com/en-ca/help/2533009/information-about-microsoft-support-policy-for-a-dfs-r-and-dfs-n-deplo) regarding using DFS-R and DFS-N for roaming profile shares and folder redirection shares.*
+One additional point to consider since the Citrix virtualization system will be running on Google Cloud: a new deployment or migration event may provide an excellent opportunity to evaluate other options for Windows file services instead of building your own. Fortunately, Google has other options worth considering. We'll touch on some of these now.
 
 #### Additional Cloud Service Options
 
-Besides Amazon's first party managed Windows file service, AWS supports many more expansive and feature rich options, some of which integrate with traditional on-premises storage technologies. While these other options are outside the scope of this document, there are many options to choose from. A good place to start exploring options is on the [AWS Marketplace](https://aws.amazon.com/marketplace/). These types of solutions can be especially relevant for more complex, multi-region use cases where reliable and resilient data replication is needed.
+Windows Server VM instances might be the 'default' means for providing Windows file shares on Google Cloud, but other options are available that may serve customers' unique requirements more effectively. Some options to consider include:
+-  [NetApp Cloud Volumes Service for GCP](https://cloud.netapp.com/cloud-volumes-service-for-gcp)
+-  What else??
 
 #### CIFS Storage and Data Replication: Summary and Conclusions
 
-Customers can manage their own highly available DFS file share, benefit from this as an AWS service (FSx) to save on management effort, or use third party storage appliance solutions to extend on an on premises environment. Citrix recommends that customers analyze the pros and cons of each to determine a solution that is right for them.
+Customers can build/manage their own highly available Windows DFS file stores, or use third party storage appliance solutions to extend on an on premises environment. Citrix recommends that customers analyze the pros and cons of each to determine a solution that is right for them.
 
 ### Image Design and Management
 
-In a Citrix virtualization system on AWS, applications and desktops are delivered via EC2 instances called "VDAs" (named after Citrix's Virtual Delivery Agent software, which is installed into Windows or Linux instances containing the applications being delivered by the Citrix virtualization system). A group of identical VDAs are provisioned and maintained in "Machine Catalogs," a management construct defined and maintained through the session brokering and management subsystem (both CVADS and CVAD). The creation, sizing, and management of these instances is key, as many systems have large numbers of VDAs and the software stack in a VDA changes frequently as hotfixes, service packs, and software updates are applied. We'll discuss some of the higher-level considerations in this section.
+In a Citrix virtualization system on Google Cloud, applications and desktops are delivered via GCE VM instances called "VDAs" (named after Citrix's Virtual Delivery Agent software, which is installed into Windows or Linux instances containing the applications being delivered by the Citrix virtualization system). A group of identical VDAs are provisioned and maintained in "Machine Catalogs," a management construct defined and maintained through the session brokering and management subsystem (the Citrix Virtual Apps and Desktops Service). The creation, sizing, and management of these instances is key, as many systems have large numbers of VDAs and the software stack in a VDA changes frequently as hotfixes, service packs, and software updates are applied. We'll discuss some of the higher-level considerations in this section.
 
-#### VDA Provisioning and Image Management
+#### VDA Provisioning and Image Management INCOMPLETE
 
-On AWS EC2, Citrix virtualization systems use Citrix's Machine Creation Services (MCS) provisioning technology for VDA deployment and image management. MCS utilizes an IAM service account on EC2 to orchestrate the mastering process (turning a snapshot of a template VM's system disk into a generalized AMI), the cloning process (creating and managing a fleet of VDA instances based on the AMI created from the snapshot of the template VM), autoscaling Delivery Groups, updating deployed images, and more. We'll discuss MCS on AWS in much more detail in the [Control Layer Considerations](#control-layer-considerations) sections of this document.
+On Google Cloud, Citrix virtualization systems use Citrix's Machine Creation Services (MCS) provisioning technology for VDA deployment and image management. MCS utilizes an IAM service account on EC2 to orchestrate the mastering process (turning a snapshot of a template VM's system disk into a generalized AMI), the cloning process (creating and managing a fleet of VDA instances based on the AMI created from the snapshot of the template VM), autoscaling Delivery Groups, updating deployed images, and more. We'll discuss MCS on AWS in much more detail in the [Control Layer Considerations](#control-layer-considerations) sections of this document.
 
 **Note:** customers already using MCS for their on-premises
 environments may notice some differences between options available to them when provisioning machines in AWS. MCS managed VDA instances on EC2 have two disks attached: the system disk (a read/write copy of the template image AMI created during the mastering process) and a 1GB personality disk. Depending on the machine catalog type and hosting connection options configured, the system disk (and sometimes the VM instance) will be deleted at shutdown and recreated at 'power on' (for pooled or shared catalogs) or they are retained (for persistent catalog types). See [CTX234562](https://support.citrix.com/article/CTX234562) for more information.
