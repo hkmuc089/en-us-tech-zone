@@ -4,23 +4,30 @@ description: Learn about the required components of every Citrix virtualization 
 ---
 # Choosing the Right Components for your Citrix Virtualization System
 
+Note: this is a nearly complete document which the author believes provides valuable design guidance that every customer, partner, consultant, or seller needs to be successful deploying Citrix virtualization technologies. We're currently working to get a sense of the appetite/demand for the information presented here, as well as identifying concerns some Citrites may have in making this information publicly available. If you have thoughts, concerns, considerations we might be missing, or any kind of feedback, please reach out directly to the author and be heard. If you're reading this now, we've not yet made a go/no go publishing decision, so speak up while you can! 
+
 ## Contributors
 
-**Authors:** [Rick Dehlinger](mailto:rick.dehlinger@citrix.com), 
+**Authors:** [Rick Dehlinger](mailto:rick.dehlinger@citrix.com)
 
-**Special Thanks:** Someone super cool.
+**Special Thanks:** Will acknowlege contributors here if/when this is published.
 
 ### Audience and Objective
-
+ The purpose of this article is to provide the reader with key information needed to find success designing Citrix virtualization systems. It presents information which is intended to help the reader evaluate and make a few critical design decisions prior to building a Citrix virtualization system. This article is intended for Citrix customers, partners, consultants, and sellers who have a stake in the success of a deployment of Citrix virtualization technologies.
 
 ## Executive Summary
+Every Citrix virtualization system, regardless of where the workload is deployed, needs to have four key functions or 'components' served in order to have a functional system. Citrix has multiple different ways these functions can be served, each with their own strengths, weaknesses, and caveats. 
+
+This document starts by making the distinction between two very different technology delivery/adoption models: customer managed and cloud service based. 
+
+We then define four different required functions or 'components' which must be served, and list the different Citrix technology or service which service each function, and classify them as either 'customer managed' or 'cloud service'.
+
+Finally, we identify critical feature/capabilities, and call out how each technology or service does or does not provide them.
 
 ### Technology Delivery/Adoption Models
 To help readers understand the design decisions presented here, we'll introduce the distinction between **Customer Managed** and **Cloud Service** adoption models. Simply put:
 -  **Customer Managed** technologies are deployed and managed by/for the customer, typically by downloading and installing binaries on infrastructure they manage, or buying and installing physical gear like networking appliances. CVAD (LTSR or CR), Citrix ADC/Gateway, and Citrix StoreFront are examples of customer managed techologies.
 -  **Cloud Service** based technologies are delivered as managed services, and often consumed by securely connecting to them over public networks. The Citrix Virtual Apps and Desktops Service (CVADS), Citrix Gateway Service (CGS), and Citrix Workspace Service are examples of cloud services.
-
-For a more detailed breakdown of this differentiation and the impact it has on your design decisions, see this [primer on Technology Delivery/Adoption Models](/en-us/tech-zone/design/reference-architectures/primer-technology-adoption-models.html).
 
 ### Citrix Virtualization System Components
 
@@ -37,7 +44,7 @@ The following table highlights these key components for clarity. Details and rec
 
 ## Design Decisions
 
-This section explores key design decisions to consider as you're architecting your Citrix virtualization system on AWS. We'll walk down through each layer of the Citrix Architectural Design Framework, exploring key areas for you to consider.
+This section explores key design decisions to consider as you're architecting your Citrix virtualization system on Public Cloud. We'll walk down through each layer of the Citrix Architectural Design Framework, exploring key areas for you to consider.
 
 ### About the Citrix Architectural Design Framework
 
@@ -117,3 +124,17 @@ Consider the following when choosing how you want to provide HDX session proxy f
 | Requires use of Citrix Workspace UI for HDX session presentation and launching. | **NO** - It is possible to use customer managed Citrix ADC/Gateway VPX instances with both Workspace UI and StoreFront. | ** **YES** - The Gateway Service is only configurable through the Citrix Workspace UI for HDX proxy - it does NOT provide HDX proxy capabilities for Citrix StoreFront. |
 | Requires additional resources on Cloud Connector instances to proxy sessions into secured networks. | **NO** - While Cloud Connectors perform STA ticket validation for customer managed Citrix ADC/Gateway VPX instances, no additional resources are needed since all HDX sessions are proxied through the VPXs. | **YES** - Today the Gateway Service uses long lived, outbound TCP connections from the Cloud Connector instances to Citrix Cloud to proxy HDX traffic back into private networks. This requires additional resource considerations when sizing and configuring Cloud Connector instances. See [this article](/en-us/citrix-virtual-apps-desktops-service/install-configure/install-cloud-connector/cc-scale-and-size.html) for more details. **Note** - this requirement is moot for most use cases once the Gateway Service and VDAs can use the Rendezvous protocol/feature. This requires Citrix VDA 1912 or newer. |
 | Ability to be used with Citrix Cloud Government tenants. | **YES** - Both on-prem and Google Cloud-based ADC/Gateway/StoreFront deployments are supported. | **YES** - Citrix Workspace is available in Citrix Cloud Government. |
+
+
+### Session Brokering and Administration Considerations
+
+As you've probably already gathered by now, the choice of how you provide session brokering and administration services is critical, and has broad reaching implications on overall cost, manageability, maintenance, and available capabilities for your Citrix virtualization system. As we've already discussed, Citrix recommends the use of the Citrix Cloud service (CVADS) for this critical component, but for certain requirements and scenarios, deploying a customer managed session brokering and administration subsystem (via CVAD LTSR or CR releases) may be necessary or recommended. The following table highlights some of these requirements and scenarios for your consideration:
+
+| Attribute/Capability | Customer Managed CVAD (Citrix Virtual Apps and Desktops, LTSR or CR versions) | Cloud Service CVADS (Citrix Virtual Apps and Desktops Service, provided by Citrix Cloud) |
+|---|---|---|
+| Requires outbound Internet connectivity to Citrix Cloud. | **NO** - Delivery Controllers don't require outbound Internet connectivity, though they must be able to communicate to AWS infrastructure for MCS provisioning to function. | **YES** - Cloud Connectors communicate over the Internet to Citrix Cloud, though these connections can be proxied. See [How to Set up a Proxy Server for Citrix Cloud Connector](/en-us/citrix-cloud/citrix-cloud-resource-locations/citrix-cloud-connector/proxy-firewall-configuration.html) for more details. For strictly air gapped deployments, this is often a show stopper. |
+| Requires the customer to provide highly available Microsoft SQL database services. | **YES** - CVAD (in both LTSR and CR release types) requires the customer to provide and highly available Microsoft SQL database services. These can be provided by building SQL Servers on EC2 instances, or by using the AWS RDS for SQL Server service. | **NO** - CVADS does not require customers to touch SQL server: highly available database services are provided by the Citrix Cloud delivery platform and are transparent to customers. |
+| Requires the customer to apply patches and upgrades to Citrix software over time to maintain security and supportability, and to get access to new features and capabilities. | **YES** - customers are responsible for installation, configuration, patching, securing, and upgrading both Citrix software and underlying operating system for all components in a CVAD based session brokering and administration system. They're also responsible for maintaining high availability of each component, including Citrix Delivery Controllers, Studio installations, Director, and Citrix Licensing. | **NO** - Cloud Connectors (the only session brokering and administrative component that resides in the customer's VPC) are automatically updated and maintained by Citrix. Customers are responsible for patching and maintaining the Windows Server operating system on the EC2 Cloud Connector instances, and new features and capabilities are available immediately, without requiring the customer to manually update the Cloud Connectors. |
+| Ability to use advanced services provided by Citrix Cloud, including the [Citrix Autoscale feature](/en-us/citrix-virtual-apps-desktops-service/manage-deployment/autoscale.html). | **Sometimes** - not all advanced services are available to customer managed CVAD deployments, and when they are, may require the installation and configuration of additional components. The Autoscale feature is not available for CVAD environments. | **YES** - CVADS is designed to work 'out of the box' with other Citrix Cloud services, and these services are typically pre-configured so the customer simply turns them on. The [Autoscale feature](/en-us/citrix-virtual-apps-desktops-service/manage-deployment/autoscale.html), which provides the ability to granularly control the quantity and power state of VDAs, is particularly impactful for VDA deployments on public cloud. It can provide substantial infrastructure cost savings in scenarios where you're paying for only the capacity you need. |
+| Ability to have complete control over all subsystem components, including timing of upgrade and maintenance activities. | **YES** - since every component is installed, configured, and maintained by the customer, the customer has complete control over the versioning, configuration, and availability of each component (albeit at substantially increased cost of infrastructure, complexity, and administrative overhead). | **NO** - with CVADS, customers give up some measure of control, but gain simplicity, reduced infrastructure costs, and substantially reduced administrative overhead. |
+| Ability to license based on concurrent users vs. named users. | **YES** - CVAD can be licensed by CCU. | **Not Yet** - CVADS is currently licensed by named user only. CCU licensing is being considered for future releases, but this feature has not been committed as of the time of writing. |
